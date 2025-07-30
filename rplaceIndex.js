@@ -293,6 +293,10 @@ const PLACEMENT_MODE = Object.freeze({
   selectPixelMouseOnly: 1,
   freeDraw: 2,
 });
+const VIEWPORT_MODE = Object.freeze({
+  placePixels: 0,
+  selectPixels: 1,
+});
 const MAX_CHANNEL_MESSAGES = 100;
 const DEFAULT_PALETTE_USABLE_REGION = { start: 0, end: 32 };
 const DEFAULT_PALETTE = [
@@ -778,7 +782,7 @@ function splitCells(tableRow, count) {
   }
   return cells;
 }
-function rtrim(str, c2, invert) {
+function rtrim(str, c2, invert2) {
   const l2 = str.length;
   if (l2 === 0) {
     return "";
@@ -2880,7 +2884,7 @@ const {
   getPrototypeOf,
   getOwnPropertyDescriptor,
 } = Object;
-let { freeze, seal, create: create$1 } = Object;
+let { freeze, seal, create: create$2 } = Object;
 let { apply, construct } = typeof Reflect !== "undefined" && Reflect;
 if (!freeze) {
   freeze = function freeze2(x2) {
@@ -2945,13 +2949,13 @@ function unconstruct(func) {
     return construct(func, args);
   };
 }
-function addToSet(set2, array) {
+function addToSet(set, array) {
   let transformCaseFunc =
     arguments.length > 2 && arguments[2] !== void 0
       ? arguments[2]
       : stringToLowerCase;
   if (setPrototypeOf) {
-    setPrototypeOf(set2, null);
+    setPrototypeOf(set, null);
   }
   let l2 = array.length;
   while (l2--) {
@@ -2965,9 +2969,9 @@ function addToSet(set2, array) {
         element = lcElement;
       }
     }
-    set2[element] = true;
+    set[element] = true;
   }
-  return set2;
+  return set;
 }
 function cleanArray(array) {
   for (let index2 = 0; index2 < array.length; index2++) {
@@ -2979,7 +2983,7 @@ function cleanArray(array) {
   return array;
 }
 function clone(object) {
-  const newObject = create$1(null);
+  const newObject = create$2(null);
   for (const [property, value] of entries(object)) {
     const isPropertyExist = objectHasOwnProperty(object, property);
     if (isPropertyExist) {
@@ -3817,7 +3821,7 @@ function createDOMPurify() {
     ...xml,
   ]);
   let CUSTOM_ELEMENT_HANDLING = Object.seal(
-    create$1(null, {
+    create$2(null, {
       tagNameCheck: {
         writable: true,
         configurable: false,
@@ -4884,7 +4888,7 @@ async function fetchTranslations(lang2) {
     TRANSLATIONS[lang2] = translation;
     return translation;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return TRANSLATIONS["en"];
   }
 }
@@ -5326,7 +5330,7 @@ if (!Math.hypot)
     }
     return Math.sqrt(y3);
   };
-function create() {
+function create$1() {
   var out = new ARRAY_TYPE(16);
   if (ARRAY_TYPE != Float32Array) {
     out[1] = 0;
@@ -5365,6 +5369,59 @@ function identity(out) {
   out[13] = 0;
   out[14] = 0;
   out[15] = 1;
+  return out;
+}
+function invert(out, a2) {
+  var a00 = a2[0],
+    a01 = a2[1],
+    a02 = a2[2],
+    a03 = a2[3];
+  var a10 = a2[4],
+    a11 = a2[5],
+    a12 = a2[6],
+    a13 = a2[7];
+  var a20 = a2[8],
+    a21 = a2[9],
+    a22 = a2[10],
+    a23 = a2[11];
+  var a30 = a2[12],
+    a31 = a2[13],
+    a32 = a2[14],
+    a33 = a2[15];
+  var b00 = a00 * a11 - a01 * a10;
+  var b01 = a00 * a12 - a02 * a10;
+  var b02 = a00 * a13 - a03 * a10;
+  var b03 = a01 * a12 - a02 * a11;
+  var b04 = a01 * a13 - a03 * a11;
+  var b05 = a02 * a13 - a03 * a12;
+  var b06 = a20 * a31 - a21 * a30;
+  var b07 = a20 * a32 - a22 * a30;
+  var b08 = a20 * a33 - a23 * a30;
+  var b09 = a21 * a32 - a22 * a31;
+  var b10 = a21 * a33 - a23 * a31;
+  var b11 = a22 * a33 - a23 * a32;
+  var det =
+    b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+  if (!det) {
+    return null;
+  }
+  det = 1 / det;
+  out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+  out[1] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+  out[2] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+  out[3] = (a22 * b04 - a21 * b05 - a23 * b03) * det;
+  out[4] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+  out[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+  out[6] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+  out[7] = (a20 * b05 - a22 * b02 + a23 * b01) * det;
+  out[8] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+  out[9] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+  out[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+  out[11] = (a21 * b02 - a20 * b04 - a23 * b00) * det;
+  out[12] = (a11 * b07 - a10 * b09 - a12 * b06) * det;
+  out[13] = (a00 * b09 - a01 * b07 + a02 * b06) * det;
+  out[14] = (a31 * b01 - a30 * b03 - a32 * b00) * det;
+  out[15] = (a20 * b03 - a21 * b01 + a22 * b00) * det;
   return out;
 }
 function multiply(out, a2, b2) {
@@ -5485,161 +5542,278 @@ function orthoNO(out, left, right, bottom, top, near, far) {
   return out;
 }
 var ortho = orthoNO;
+function create() {
+  var out = new ARRAY_TYPE(4);
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+  }
+  return out;
+}
+function fromValues(x2, y3, z3, w) {
+  var out = new ARRAY_TYPE(4);
+  out[0] = x2;
+  out[1] = y3;
+  out[2] = z3;
+  out[3] = w;
+  return out;
+}
+function transformMat4(out, a2, m2) {
+  var x2 = a2[0],
+    y3 = a2[1],
+    z3 = a2[2],
+    w = a2[3];
+  out[0] = m2[0] * x2 + m2[4] * y3 + m2[8] * z3 + m2[12] * w;
+  out[1] = m2[1] * x2 + m2[5] * y3 + m2[9] * z3 + m2[13] * w;
+  out[2] = m2[2] * x2 + m2[6] * y3 + m2[10] * z3 + m2[14] * w;
+  out[3] = m2[3] * x2 + m2[7] * y3 + m2[11] * z3 + m2[15] * w;
+  return out;
+}
+(function () {
+  var vec = create();
+  return function (a2, stride, offset, count, fn, arg) {
+    var i4, l2;
+    if (!stride) {
+      stride = 4;
+    }
+    if (!offset) {
+      offset = 0;
+    }
+    if (count) {
+      l2 = Math.min(count * stride + offset, a2.length);
+    } else {
+      l2 = a2.length;
+    }
+    for (i4 = offset; i4 < l2; i4 += stride) {
+      vec[0] = a2[i4];
+      vec[1] = a2[i4 + 1];
+      vec[2] = a2[i4 + 2];
+      vec[3] = a2[i4 + 3];
+      fn(vec, vec, arg);
+      a2[i4] = vec[0];
+      a2[i4 + 1] = vec[1];
+      a2[i4 + 2] = vec[2];
+      a2[i4 + 3] = vec[3];
+    }
+    return a2;
+  };
+})();
 class BoardRenderer {
-  /**@type {ResizeObserver}*/
-  #resizeObserver;
   /**@type {HTMLCanvasElement}*/
   canvas;
   /**@type {WebGL2RenderingContext}*/
-  #gl;
+  _gl;
+  /**@type {ResizeObserver}*/
+  _resizeObserver;
   // We separate into different render layers for mod & debugging purposes
   /**@type {Uint8Array|null}*/
-  #board = null;
+  _board = null;
   /**@type {Uint8Array|null}*/
-  #changes = null;
+  _changes = null;
   /**@type {Uint8Array|null}*/
-  #socketPixels = null;
+  _socketPixels = null;
   /**@type {Uint32Array|null}*/
-  #palette = null;
+  _palette = null;
   /**@type {number}*/
-  #width = 0;
+  _boardWidth = 0;
   /**@type {number}*/
-  #height = 0;
+  _boardHeight = 0;
   /**@type {number|null}*/
-  #redrawHandle = null;
+  _redrawHandle = null;
   /**@type {number}*/
-  #x = 0;
+  _x = 0;
   /**@type {number}*/
-  #y = 0;
+  _y = 0;
   /**@type {number}*/
-  #zoom = 1;
+  _zoom = 1;
   /**@type {number}*/
-  #devicePixelRatio = 1;
+  _devicePixelRatio = 1;
+  // Default textures and shader program
   /**@type {WebGLProgram}*/
-  #program;
+  _boardProgram;
   /**@type {WebGLVertexArrayObject}*/
-  #vao;
+  _vao;
   /**@type {WebGLTexture}*/
-  #canvasTex;
+  _canvasTex;
   /**@type {WebGLTexture}*/
-  #changesTex;
+  _changesTex;
   /**@type {WebGLTexture}*/
-  #socketPixelsTex;
+  _socketPixelsTex;
   /**@type {WebGLTexture}*/
-  #paletteTex;
+  _paletteTex;
+  // Transform handling
   /**@type {mat4}*/
-  #modelMatrix;
+  _modelMatrix;
   /**@type {mat4}*/
-  #viewMatrix;
+  _viewMatrix;
   /**@type {mat4}*/
-  #projectionMatrix;
+  _projectionMatrix;
   /**@type {mat4}*/
-  #mvpMatrix;
+  _mvpMatrix;
+  // Default board shader handling
   /**@type {WebGLUniformLocation}*/
-  #mvpUniformLoc;
+  _boardMvpUniformLoc;
   /**@type {WebGLUniformLocation}*/
-  #boardTexUniformLoc;
+  _boardSizeUniformLoc;
   /**@type {WebGLUniformLocation}*/
-  #paletteTexUniformLoc;
+  _boardTexUniformLoc;
+  /**@type {WebGLUniformLocation}*/
+  _paletteTexUniformLoc;
   // Render layers configuration
-  /**
-   * @typedef {{texture: WebGLTexture, enabled: boolean, blendMode?: string}} RenderLayer
-   */
+  /**@type {LayerShader}*/
+  _boardLayerShader;
   /**@type {Array<RenderLayer>}*/
-  #renderLayers = [];
+  _renderLayers = [];
+  // Picking handling
+  /**@type {WebGLFramebuffer}*/
+  _pickFBO;
+  /**@type {WebGLTexture}*/
+  _pickFBOTex;
+  /**@type {WebGLTexture}*/
+  _pickTex;
+  /**@type {WebGLProgram}*/
+  _pickProgram;
+  /**@type {WebGLUniformLocation}*/
+  _pickMvpUniformLoc;
+  /**@type {WebGLUniformLocation}*/
+  _pickBoardSizeUniformLoc;
+  /**@type {WebGLUniformLocation}*/
+  _pickTexUniformLoc;
+  // Geometry
+  /**@type {Float32Array}*/
+  _uv;
+  /**@type {Float32Array}*/
+  _vertices;
+  /**@type {number}*/
+  _vertexCount;
+  static uv = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
+  static vertices = new Float32Array([
+    -1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0,
+  ]);
+  // Shaders
+  static boardVertexSource = `#version 300 es
+		in vec3 a_position;
+		in vec2 a_uv;
+		out vec2 v_uv;
+
+		uniform mat4 u_modelViewProjection;
+
+		void main() {
+			v_uv = vec2(a_uv.x, 1.0 - a_uv.y);
+			gl_Position = u_modelViewProjection * vec4(a_position, 1.0); 
+		}`;
+  static boardFragmentSource = `#version 300 es
+		precision highp float;
+		precision highp usampler2D;
+
+		in highp vec2 v_uv;
+		out vec4 fragColour;
+
+		uniform usampler2D u_boardTex;
+		uniform usampler2D u_paletteTex;
+		uniform ivec2 u_boardSize;
+
+		void main() {
+			ivec2 texelCoord = ivec2(v_uv * vec2(u_boardSize));
+
+			// Get palette index from board texture
+			uint index = texelFetch(u_boardTex, texelCoord, 0).r;
+			
+			if (index == 255u) {
+				// Changes / socketPixels alpha index
+				fragColour = vec4(1.0, 1.0, 1.0, 0.0);
+				return;
+			}
+
+			// Get colour from palette texture
+			uvec4 raw = texelFetch(u_paletteTex, ivec2(int(index), 0), 0);
+
+			// Convert to normalized float
+			fragColour = vec4(raw) / 255.0;
+		}`;
+  static pickFragmentSource = `#version 300 es
+		precision highp float;
+		precision highp usampler2D;
+
+		in highp vec2 v_uv;
+		layout(location = 0) out uvec4 fragColour;
+
+		uniform usampler2D u_pickTex;
+		uniform ivec2 u_boardSize;
+
+		void main() {
+			ivec2 texelCoord = ivec2(v_uv * vec2(u_boardSize));
+			uvec4 pixelId = texelFetch(u_pickTex, texelCoord, 0);
+
+			if (texelCoord.x >= 0 && texelCoord.x < u_boardSize.x && 
+				texelCoord.y >= 0 && texelCoord.y < u_boardSize.y) {
+				fragColour = pixelId;
+			}
+			else {
+				// Outside board bounds - output invalid ID
+				fragColour = uvec4(255u, 255u, 255u, 255u);
+			}
+		}`;
   /**
-   *
    * @param {HTMLCanvasElement} canvas
+   * @param {Float32Array} uv
+   * @param {Float32Array} vertices
+   * @param {number} vertexCount
    */
-  constructor(canvas2) {
+  constructor(
+    canvas2,
+    uv = BoardRenderer.uv,
+    vertices = BoardRenderer.vertices,
+    vertexCount = 6
+  ) {
     this.canvas = canvas2;
-    this.#resizeObserver = new ResizeObserver(() => {
-      this.#updateCanvasSize();
+    this._uv = uv;
+    this._vertices = vertices;
+    this._vertexCount = vertexCount;
+    this._resizeObserver = new ResizeObserver(() => {
+      this._updateCanvasSize();
+      this._updatePickFrameBufferSize();
       this.queueRedraw();
     });
-    this.#devicePixelRatio = window.devicePixelRatio || 1;
+    this._resizeObserver.observe(canvas2);
     window.addEventListener("resize", () => {
-      this.#devicePixelRatio = window.devicePixelRatio || 1;
-      this.#updateCanvasSize();
+      this._devicePixelRatio = window.devicePixelRatio ?? 1;
+      this._updateCanvasSize();
+      this._updatePickFrameBufferSize();
     });
-    this.#resizeObserver.observe(canvas2);
-    const gl = (this.#gl =
+    this._devicePixelRatio = window.devicePixelRatio ?? 1;
+    const gl = (this._gl =
       /**@type {WebGL2RenderingContext}*/
-      canvas2.getContext("webgl2"));
+      canvas2.getContext("webgl2", { alpha: true }));
     if (!gl) {
       throw new Error("WebGL2 not supported");
     }
-    const vertices = new Float32Array([
-      -1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0,
-    ]);
-    const uv = new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]);
-    const vsSource = `#version 300 es
-			in vec3 a_position;
-			in vec2 a_uv;
-			out vec2 v_uv;
-
-			uniform mat4 u_modelViewProjection;
-
-			void main() {
-				v_uv = vec2(a_uv.x, 1.0 - a_uv.y);
-				gl_Position = u_modelViewProjection * vec4(a_position, 1.0); 
-			}`;
-    const fsSource = `#version 300 es
-			precision highp float;
-			precision highp usampler2D;
-
-			in vec2 v_uv;
-			out vec4 fragColour;
-
-			uniform usampler2D u_boardTex;
-			uniform usampler2D u_paletteTex;
-
-			void main() {
-				ivec2 texSize = textureSize(u_boardTex, 0);
-				ivec2 texelCoord = ivec2(v_uv * vec2(texSize));
-
-				// Get palette index from board texture
-				uint index = texelFetch(u_boardTex, texelCoord, 0).r;
-				
-				if (index == 255u) {
-					// Changes / socketPixels alpha index
-					discard;
-				}
-
-				// Get colour from palette texture
-				uvec4 raw = texelFetch(u_paletteTex, ivec2(int(index), 0), 0);
-
-				// Convert to normalized float
-				fragColour = vec4(raw) / 255.0;
-			}`;
-    const program = (this.#program = gl.createProgram());
-    gl.attachShader(program, this.#compileShader(gl.VERTEX_SHADER, vsSource));
-    gl.attachShader(program, this.#compileShader(gl.FRAGMENT_SHADER, fsSource));
-    gl.linkProgram(program);
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      const errorMsg = gl.getProgramInfoLog(program) ?? "";
-      throw new Error(errorMsg);
-    }
-    const vao = (this.#vao = gl.createVertexArray());
+    const boardProgram = (this._boardProgram = this._createShader(
+      BoardRenderer.boardFragmentSource,
+      BoardRenderer.boardVertexSource
+    ));
+    const vao = (this._vao = gl.createVertexArray());
     gl.bindVertexArray(vao);
     const vbo = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-    const posLoc = gl.getAttribLocation(program, "a_position");
+    gl.bufferData(gl.ARRAY_BUFFER, this._vertices, gl.STATIC_DRAW);
+    const posLoc = gl.getAttribLocation(boardProgram, "a_position");
     gl.enableVertexAttribArray(posLoc);
     gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
     const uvBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
-    const uvLoc = gl.getAttribLocation(program, "a_uv");
+    gl.bufferData(gl.ARRAY_BUFFER, this._uv, gl.STATIC_DRAW);
+    const uvLoc = gl.getAttribLocation(boardProgram, "a_uv");
     gl.enableVertexAttribArray(uvLoc);
     gl.vertexAttribPointer(uvLoc, 2, gl.FLOAT, false, 0, 0);
-    this.#width = 1;
-    this.#height = 1;
-    this.#canvasTex = this.#initialiseBoardTexture();
-    this.#changesTex = this.#initialiseBoardTexture();
-    this.#socketPixelsTex = this.#initialiseBoardTexture();
-    const paletteTex = (this.#paletteTex = gl.createTexture());
+    this._boardWidth = 1;
+    this._boardHeight = 1;
+    this._canvasTex = this._createBoardTexture();
+    this._changesTex = this._createBoardTexture();
+    this._socketPixelsTex = this._createBoardTexture();
+    const paletteTex = (this._paletteTex = gl.createTexture());
     gl.bindTexture(gl.TEXTURE_2D, paletteTex);
     gl.texImage2D(
       gl.TEXTURE_2D,
@@ -5656,32 +5830,109 @@ class BoardRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    this.#mvpUniformLoc =
+    this._boardMvpUniformLoc =
       /**@type {WebGLUniformLocation}*/
-      gl.getUniformLocation(program, "u_modelViewProjection");
-    this.#boardTexUniformLoc =
+      gl.getUniformLocation(boardProgram, "u_modelViewProjection");
+    this._boardTexUniformLoc =
       /**@type {WebGLUniformLocation}*/
-      gl.getUniformLocation(program, "u_boardTex");
-    this.#paletteTexUniformLoc =
+      gl.getUniformLocation(boardProgram, "u_boardTex");
+    this._boardSizeUniformLoc =
       /**@type {WebGLUniformLocation}*/
-      gl.getUniformLocation(program, "u_paletteTex");
-    this.#initializeRenderLayers();
-    const model = (this.#modelMatrix = create());
+      gl.getUniformLocation(boardProgram, "u_boardSize");
+    this._paletteTexUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(boardProgram, "u_paletteTex");
+    this._boardLayerShader = {
+      program: this._boardProgram,
+      mvpUniformLoc: this._boardMvpUniformLoc,
+      boardSizeUniformLoc: this._boardSizeUniformLoc,
+      paletteTexUniformLoc: this._paletteTexUniformLoc,
+      textureUniformLoc: this._boardTexUniformLoc,
+    };
+    const pickFBO = (this._pickFBO = gl.createFramebuffer());
+    gl.bindFramebuffer(gl.FRAMEBUFFER, pickFBO);
+    this._pickTex = this._createPickTexture();
+    const pickProgram = (this._pickProgram = this._createShader(
+      BoardRenderer.pickFragmentSource,
+      BoardRenderer.boardVertexSource
+    ));
+    this._pickMvpUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(pickProgram, "u_modelViewProjection");
+    this._pickBoardSizeUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(pickProgram, "u_boardSize");
+    this._pickTexUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(pickProgram, "u_pickTex");
+    const pickFBOTex = (this._pickFBOTex = gl.createTexture());
+    gl.bindTexture(gl.TEXTURE_2D, pickFBOTex);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA8UI,
+      canvas2.width,
+      canvas2.height,
+      0,
+      gl.RGBA_INTEGER,
+      gl.UNSIGNED_BYTE,
+      null
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      pickFBOTex,
+      0
+    );
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      console.error("Incomplete framebuffer:", status.toString(16));
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this._initialiseRenderLayers();
+    const model = (this._modelMatrix = create$1());
     identity(model);
-    const view = (this.#viewMatrix = create());
+    const view = (this._viewMatrix = create$1());
     identity(view);
-    const projection = (this.#projectionMatrix = create());
+    const projection = (this._projectionMatrix = create$1());
     identity(projection);
-    const mvp = (this.#mvpMatrix = create());
+    const mvp = (this._mvpMatrix = create$1());
     identity(mvp);
-    this.#updateCanvasSize();
+    this._updateCanvasSize();
   }
-  #initializeRenderLayers() {
-    this.#renderLayers = [
-      { texture: this.#canvasTex, enabled: true },
-      { texture: this.#changesTex, enabled: true },
-      { texture: this.#socketPixelsTex, enabled: true },
+  _initialiseRenderLayers() {
+    this._renderLayers = [
+      {
+        texture: this._canvasTex,
+        shader: this._boardLayerShader,
+        enabled: true,
+        uniforms: {
+          u_paletteTex: this._paletteTex,
+        },
+      },
+      {
+        texture: this._changesTex,
+        shader: this._boardLayerShader,
+        enabled: true,
+        uniforms: {
+          u_paletteTex: this._paletteTex,
+        },
+      },
+      {
+        texture: this._socketPixelsTex,
+        shader: this._boardLayerShader,
+        enabled: true,
+        uniforms: {
+          u_paletteTex: this._paletteTex,
+        },
+      },
     ];
+  }
+  getContext() {
+    return this._gl;
   }
   /**
    * Enable or disable a specific render layer
@@ -5689,19 +5940,187 @@ class BoardRenderer {
    * @param {boolean} enabled
    */
   setLayerEnabled(layerIndex, enabled) {
-    if (this.#renderLayers[layerIndex]) {
-      this.#renderLayers[layerIndex].enabled = enabled;
+    if (this._renderLayers[layerIndex]) {
+      this._renderLayers[layerIndex].enabled = enabled;
       this.queueRedraw();
     }
   }
   /**
    * Add a new render layer
    * @param {WebGLTexture} texture
+   * @param {LayerShader} shader
    * @param {boolean} enabled
+   * @param {Object<string, any>} [uniforms] - Custom uniform values
    */
-  addRenderLayer(texture, enabled = true) {
-    this.#renderLayers.push({ texture, enabled });
+  addRenderLayer(
+    texture,
+    shader = this._boardLayerShader,
+    enabled = true,
+    uniforms = {}
+  ) {
+    const layer = { texture, shader, enabled, uniforms };
+    this._renderLayers.push(layer);
     this.queueRedraw();
+    return layer;
+  }
+  /**
+   * @param {RenderLayer} layer
+   */
+  removeRenderLayer(layer) {
+    const index2 = this._renderLayers.indexOf(layer);
+    if (index2 != -1) {
+      this._renderLayers.splice(index2, 1);
+    }
+    this.queueRedraw();
+    return index2;
+  }
+  /**
+   * Update uniform values for a specific layer
+   * @param {RenderLayer} layer
+   * @param {Object<string, any>} uniforms
+   */
+  updateLayerUniforms(layer, uniforms) {
+    if (!layer.uniforms) {
+      layer.uniforms = {};
+    }
+    Object.assign(layer.uniforms, uniforms);
+    this.queueRedraw();
+  }
+  /**
+   * @param {string} fragmentSource
+   * @param {string} vertexSource
+   * @param {string} textureUniform
+   * @param {Object<string, UniformSchema>} [uniformSchema] - Schema for custom uniforms
+   * @returns {LayerShader}
+   */
+  createLayerShader(
+    fragmentSource = BoardRenderer.boardFragmentSource,
+    vertexSource = BoardRenderer.boardVertexSource,
+    textureUniform = "u_boardTex",
+    uniformSchema = {}
+  ) {
+    const gl = this._gl;
+    const program = this._createShader(fragmentSource, vertexSource);
+    const textureUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(program, textureUniform);
+    const mvpUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(program, "u_modelViewProjection");
+    const boardSizeUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(program, "u_boardSize");
+    const paletteTexUniformLoc =
+      /**@type {WebGLUniformLocation}*/
+      gl.getUniformLocation(program, "u_paletteTex");
+    const uniformLocations = {};
+    let nextTextureUnit = 2;
+    for (const [name, schema] of Object.entries(uniformSchema)) {
+      const location2 = gl.getUniformLocation(program, name);
+      if (location2) {
+        uniformLocations[name] = location2;
+        if (schema.type === "sampler2D" && schema.textureUnit === void 0) {
+          schema.textureUnit = nextTextureUnit++;
+        }
+      }
+    }
+    return {
+      program,
+      mvpUniformLoc,
+      boardSizeUniformLoc,
+      paletteTexUniformLoc,
+      textureUniformLoc,
+      uniformSchema,
+      uniformLocations,
+    };
+  }
+  /**
+   * Bind custom uniforms based on schema
+   * @param {WebGL2RenderingContext} gl
+   * @param {LayerShader} shader
+   * @param {Record<string, any>} uniformValues
+   */
+  _bindCustomUniforms(gl, shader, uniformValues) {
+    if (!shader.uniformSchema || !shader.uniformLocations || !uniformValues) {
+      return;
+    }
+    for (const [name, schema] of Object.entries(shader.uniformSchema)) {
+      const location2 = shader.uniformLocations[name];
+      const value = uniformValues[name];
+      if (!location2 || value === void 0) {
+        continue;
+      }
+      switch (schema.type) {
+        case "1f":
+          const v1f = value;
+          gl.uniform1f(location2, v1f);
+          break;
+        case "2f":
+          const v2f = value;
+          gl.uniform2f(location2, ...v2f);
+          break;
+        case "3f":
+          const v3f = value;
+          gl.uniform3f(location2, ...v3f);
+          break;
+        case "4f":
+          const v4f = value;
+          gl.uniform4f(location2, ...v4f);
+          break;
+        case "1i":
+          const v1i = value;
+          gl.uniform1i(location2, v1i);
+          break;
+        case "2i":
+          const v2i = value;
+          gl.uniform2i(location2, ...v2i);
+          break;
+        case "3i":
+          const v3i = value;
+          gl.uniform3i(location2, ...v3i);
+          break;
+        case "4i":
+          const v4i = value;
+          gl.uniform4i(location2, ...v4i);
+          break;
+        case "mat4":
+          const mat = value;
+          gl.uniformMatrix4fv(location2, false, mat);
+          break;
+        case "sampler2D":
+          const tex = value;
+          const texUnit = schema.textureUnit ?? 0;
+          gl.activeTexture(gl.TEXTURE0 + texUnit);
+          gl.bindTexture(gl.TEXTURE_2D, tex);
+          gl.uniform1i(location2, texUnit);
+          break;
+        default:
+          console.warn(`Unknown uniform type: ${schema.type}`);
+          break;
+      }
+    }
+  }
+  /**
+   * @param {string} fragmentSource
+   * @param {string} vertexSource
+   */
+  _createShader(fragmentSource, vertexSource) {
+    const gl = this._gl;
+    const program = gl.createProgram();
+    gl.attachShader(
+      program,
+      this._compileShader(gl.FRAGMENT_SHADER, fragmentSource)
+    );
+    gl.attachShader(
+      program,
+      this._compileShader(gl.VERTEX_SHADER, vertexSource)
+    );
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      const errorMsg = gl.getProgramInfoLog(program) ?? "";
+      throw new Error(errorMsg);
+    }
+    return program;
   }
   /**
    *
@@ -5709,8 +6128,8 @@ class BoardRenderer {
    * @param {string} source
    * @returns
    */
-  #compileShader(type, source) {
-    const gl = this.#gl;
+  _compileShader(type, source) {
+    const gl = this._gl;
     const shader = gl.createShader(type);
     if (!shader) {
       throw new Error("Failed to create shader");
@@ -5724,8 +6143,8 @@ class BoardRenderer {
     }
     return shader;
   }
-  #updateCanvasSize() {
-    const dpr = this.#devicePixelRatio;
+  _updateCanvasSize() {
+    const dpr = this._devicePixelRatio;
     const width = this.canvas.offsetWidth * dpr;
     const height = this.canvas.offsetHeight * dpr;
     if (this.canvas.width !== width || this.canvas.height !== height) {
@@ -5735,14 +6154,14 @@ class BoardRenderer {
     }
     return false;
   }
-  #updateMatrices() {
-    const model = this.#modelMatrix,
-      view = this.#viewMatrix,
-      projection = this.#projectionMatrix,
-      mvp = this.#mvpMatrix;
-    const scale = 1 / (this.#zoom * 50 * this.#devicePixelRatio);
-    const ndcX = -(this.#x - this.#width / 2) / (this.#width / 2);
-    const ndcY = (this.#y - this.#height / 2) / (this.#height / 2);
+  _updateMatrices() {
+    const model = this._modelMatrix;
+    const view = this._viewMatrix;
+    const projection = this._projectionMatrix;
+    const mvp = this._mvpMatrix;
+    const scale = 1 / (this._zoom * 50 * this._devicePixelRatio);
+    const ndcX = -(this._x - this._boardWidth / 2) / (this._boardWidth / 2);
+    const ndcY = (this._y - this._boardHeight / 2) / (this._boardHeight / 2);
     identity(model);
     identity(view);
     identity(projection);
@@ -5766,17 +6185,18 @@ class BoardRenderer {
   /**
    * @param {Uint8Array|null} boardArr Board (canvas), changes, or socket pixels array
    */
-  #initialiseBoardTexture(boardArr = null) {
-    const gl = this.#gl;
+  _createBoardTexture(boardArr = null) {
+    const gl = this._gl;
     const boardTex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, boardTex);
-    const data = boardArr || new Uint8Array(this.#width * this.#height);
+    const data =
+      boardArr || new Uint8Array(this._boardWidth * this._boardHeight);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.R8UI,
-      this.#width,
-      this.#height,
+      this._boardWidth,
+      this._boardHeight,
       0,
       gl.RED_INTEGER,
       gl.UNSIGNED_BYTE,
@@ -5788,8 +6208,8 @@ class BoardRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     return boardTex;
   }
-  #setupBlending(blendMode = "normal") {
-    const gl = this.#gl;
+  _setupBlending(blendMode = "normal") {
+    const gl = this._gl;
     if (blendMode === "normal") {
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -5803,19 +6223,31 @@ class BoardRenderer {
   /**
    * @param {RenderLayer} layer
    */
-  #renderLayer(layer) {
+  _renderLayer(layer) {
     if (!layer.enabled) {
       return;
     }
-    const gl = this.#gl;
-    this.#setupBlending(layer.blendMode);
+    const gl = this._gl;
+    this._setupBlending(layer.blendMode);
+    const layerShader = layer.shader;
+    gl.useProgram(layerShader.program);
+    gl.bindVertexArray(this._vao);
+    gl.uniformMatrix4fv(layerShader.mvpUniformLoc, false, this._mvpMatrix);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, layer.texture);
-    gl.uniform1i(this.#boardTexUniformLoc, 0);
+    gl.uniform1i(layerShader.textureUniformLoc, 0);
+    gl.uniform2i(
+      layerShader.boardSizeUniformLoc,
+      this._boardWidth,
+      this._boardHeight
+    );
     gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, this.#paletteTex);
-    gl.uniform1i(this.#paletteTexUniformLoc, 1);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.bindTexture(gl.TEXTURE_2D, this._paletteTex);
+    gl.uniform1i(layerShader.paletteTexUniformLoc, 1);
+    if (layer.uniforms) {
+      this._bindCustomUniforms(gl, layerShader, layer.uniforms);
+    }
+    gl.drawArrays(gl.TRIANGLES, 0, this._vertexCount);
   }
   /**
    * @param {Uint8Array} canvas - Base canvas
@@ -5837,51 +6269,51 @@ class BoardRenderer {
       console.warn("Invalid sources provided to setSources");
       return;
     }
-    this.#board = canvas2;
-    this.#changes = changes;
-    this.#socketPixels = socketPixels;
-    this.#palette = palette2;
-    this.#width = width;
-    this.#height = height;
-    const gl = this.#gl;
-    gl.bindTexture(gl.TEXTURE_2D, this.#canvasTex);
+    this._board = canvas2;
+    this._changes = changes;
+    this._socketPixels = socketPixels;
+    this._palette = palette2;
+    this._boardWidth = width;
+    this._boardHeight = height;
+    const gl = this._gl;
+    gl.bindTexture(gl.TEXTURE_2D, this._canvasTex);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.R8UI,
-      this.#width,
-      this.#height,
+      this._boardWidth,
+      this._boardHeight,
       0,
       gl.RED_INTEGER,
       gl.UNSIGNED_BYTE,
-      this.#board
+      this._board
     );
-    gl.bindTexture(gl.TEXTURE_2D, this.#changesTex);
+    gl.bindTexture(gl.TEXTURE_2D, this._changesTex);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.R8UI,
-      this.#width,
-      this.#height,
+      this._boardWidth,
+      this._boardHeight,
       0,
       gl.RED_INTEGER,
       gl.UNSIGNED_BYTE,
-      this.#changes
+      this._changes
     );
-    gl.bindTexture(gl.TEXTURE_2D, this.#socketPixelsTex);
+    gl.bindTexture(gl.TEXTURE_2D, this._socketPixelsTex);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.R8UI,
-      this.#width,
-      this.#height,
+      this._boardWidth,
+      this._boardHeight,
       0,
       gl.RED_INTEGER,
       gl.UNSIGNED_BYTE,
-      this.#socketPixels
+      this._socketPixels
     );
-    const paletteArr = new Uint8Array(this.#palette.buffer);
-    gl.bindTexture(gl.TEXTURE_2D, this.#paletteTex);
+    const paletteArr = new Uint8Array(this._palette.buffer);
+    gl.bindTexture(gl.TEXTURE_2D, this._paletteTex);
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
@@ -5893,6 +6325,7 @@ class BoardRenderer {
       gl.UNSIGNED_BYTE,
       paletteArr
     );
+    this._pickTex = this._createPickTexture();
     this.queueRedraw();
   }
   /**
@@ -5900,10 +6333,10 @@ class BoardRenderer {
    * @param {number} colour
    */
   redrawSocketPixel(index2, colour) {
-    const gl = this.#gl;
-    const x2 = index2 % this.#width;
-    const y3 = Math.floor(index2 / this.#width);
-    gl.bindTexture(gl.TEXTURE_2D, this.#socketPixelsTex);
+    const gl = this._gl;
+    const x2 = index2 % this._boardWidth;
+    const y3 = Math.floor(index2 / this._boardWidth);
+    gl.bindTexture(gl.TEXTURE_2D, this._socketPixelsTex);
     gl.texSubImage2D(
       gl.TEXTURE_2D,
       0,
@@ -5923,165 +6356,138 @@ class BoardRenderer {
    * @param {number} zoom
    */
   setPosition(x2, y3, zoom) {
-    this.#x = x2;
-    this.#y = y3;
-    this.#zoom = zoom;
+    this._x = x2;
+    this._y = y3;
+    this._zoom = zoom;
     this.queueRedraw();
   }
-  queueRedraw() {
-    if (this.#redrawHandle) {
-      cancelAnimationFrame(this.#redrawHandle);
+  _updatePickFrameBufferSize() {
+    const gl = this._gl;
+    gl.bindTexture(gl.TEXTURE_2D, this._pickFBOTex);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA8UI,
+      this.canvas.width,
+      this.canvas.height,
+      0,
+      gl.RGBA_INTEGER,
+      gl.UNSIGNED_BYTE,
+      null
+    );
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this._pickFBO);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      this._pickFBOTex,
+      0
+    );
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  }
+  _createPickTexture() {
+    const gl = this._gl;
+    if (this._pickTex) {
+      gl.deleteTexture(this._pickTex);
     }
-    this.#redrawHandle = requestAnimationFrame(() => {
-      this.#redrawHandle = null;
-      const gl = this.#gl;
-      if (
-        !this.#board ||
-        !this.#palette ||
-        this.#width === 0 ||
-        this.#height === 0
-      ) {
-        return;
-      }
-      gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      this.#updateMatrices();
-      gl.useProgram(this.#program);
-      gl.bindVertexArray(this.#vao);
-      gl.uniformMatrix4fv(this.#mvpUniformLoc, false, this.#mvpMatrix);
-      for (const layer of this.#renderLayers) {
-        this.#renderLayer(layer);
-      }
-      const error = gl.getError();
-      if (error !== gl.NO_ERROR) {
-        console.error("WebGL Error:", error);
-      }
+    const pickTex = (this._pickTex = gl.createTexture());
+    gl.bindTexture(gl.TEXTURE_2D, pickTex);
+    const pickTexSize = this._boardWidth * this._boardHeight * 4;
+    const pickTexData = new Uint8Array(pickTexSize);
+    for (let i4 = 0; i4 < this._boardWidth * this._boardHeight; i4++) {
+      const pixelIndex = i4 * 4;
+      pickTexData[pixelIndex] = i4 & 255;
+      pickTexData[pixelIndex + 1] = (i4 >> 8) & 255;
+      pickTexData[pixelIndex + 2] = (i4 >> 16) & 255;
+      pickTexData[pixelIndex + 3] = (i4 >> 24) & 255;
+    }
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA8UI,
+      this._boardWidth,
+      this._boardHeight,
+      0,
+      gl.RGBA_INTEGER,
+      gl.UNSIGNED_BYTE,
+      pickTexData
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return pickTex;
+  }
+  /**
+   * @param {number} screenX
+   * @param {number} screenY
+   * @returns
+   */
+  #screenToGameCoords(screenX, screenY) {
+    this._updateMatrices();
+    const ndcX = (2 * screenX) / this.canvas.width - 1;
+    const ndcY = 1 - (2 * screenY) / this.canvas.height;
+    const inverseMVP = create$1();
+    invert(inverseMVP, this._mvpMatrix);
+    const ndcPoint = fromValues(ndcX, ndcY, 0, 1);
+    const gamePoint = create();
+    transformMat4(gamePoint, ndcPoint, inverseMVP);
+    return {
+      x: gamePoint[0],
+      y: gamePoint[1],
+    };
+  }
+  /**
+   * @param {number} clientX
+   * @param {number} clientY
+   * @returns {{ x: number, y: number }|null}
+   */
+  hitTest(clientX, clientY) {
+    const gl = this._gl;
+    const rect = this.canvas.getBoundingClientRect();
+    const mouseX = Math.floor(
+      (clientX - rect.left) * (gl.drawingBufferWidth / rect.width)
+    );
+    const mouseY = Math.floor(
+      (clientY - rect.top) * (gl.drawingBufferHeight / rect.height)
+    );
+    const { x: modelX, y: modelY } = this.#screenToGameCoords(mouseX, mouseY);
+    return {
+      x: ((modelX + 1) / 2) * this._boardWidth,
+      y: ((2 - (modelY + 1)) / 2) * this._boardHeight,
+    };
+  }
+  _draw() {
+    const gl = this._gl;
+    if (
+      !this._board ||
+      !this._palette ||
+      this._boardWidth === 0 ||
+      this._boardHeight === 0
+    ) {
+      return;
+    }
+    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    this._updateMatrices();
+    for (const layer of this._renderLayers) {
+      this._renderLayer(layer);
+    }
+    const error = gl.getError();
+    if (error !== gl.NO_ERROR) {
+      console.error("WebGL Error:", error);
+    }
+  }
+  queueRedraw() {
+    if (this._redrawHandle) {
+      cancelAnimationFrame(this._redrawHandle);
+    }
+    this._redrawHandle = requestAnimationFrame(() => {
+      this._redrawHandle = null;
+      this._draw();
     });
   }
-}
-const muteButton =
-  /**@type {HTMLButtonElement}*/
-  $$1("#muteButton");
-const muteButtonImage =
-  /**@type {HTMLImageElement}*/
-  $$1("#muteButtonImage");
-const placeChatButton =
-  /**@type {HTMLButtonElement}*/
-  $$1("#placeChatButton");
-const placeChatButtonImage =
-  /**@type {HTMLImageElement}*/
-  $$1("#placeChatButtonImage");
-if (localStorage.muted !== "true") {
-  localStorage.muted = "false";
-}
-if (localStorage.placeChat !== "false") {
-  localStorage.placeChat = "true";
-}
-let muted = localStorage.muted === "true";
-let placeChat = localStorage.placeChat === "true";
-window.addEventListener("DOMContentLoaded", function () {
-  muteButtonImage.src = muted ? "/svg/muted.svg" : "/svg/unmuted.svg";
-  placeChatButtonImage.style.opacity = placeChat ? "1" : "0.6";
-});
-muteButton.addEventListener("click", function () {
-  muted = !muted;
-  localStorage.muted = String(muted);
-  muteButtonImage.src = muted ? "/svg/muted.svg" : "/svg/unmuted.svg";
-});
-placeChatButton.addEventListener("click", function () {
-  placeChat = !placeChat;
-  localStorage.placeChat = String(placeChat);
-  placeChatButtonImage.style.opacity = placeChat ? "1" : "0.6";
-});
-const AUDIOS = {
-  invalid: new Audio("/sounds/invalid.mp3"),
-  highlight: new Audio("/sounds/highlight.mp3"),
-  selectColour: new Audio("/sounds/select-colour.mp3"),
-  closePalette: new Audio("/sounds/close-palette.mp3"),
-  cooldownStart: new Audio("/sounds/cooldown-start.mp3"),
-  cooldownEnd: new Audio("/sounds/cooldown-end.mp3"),
-  bell: new Audio("/sounds/bell.mp3"),
-  celebration: new Audio("/sounds/celebration.mp3"),
-};
-const DEFAULT_SAMPLE_INFOS = /* @__PURE__ */ new Map([
-  ["default", { url: "/sounds/select-colour.mp3", baseNote: 86 }],
-  // D6
-  ["piano", { url: "/sounds/piano-c5.mp3", baseNote: 72 }],
-  // C5
-  ["bell", { url: "/sounds/bell.mp3", baseNote: 86 }],
-  // TODO: D6 (86) is probably inaccurate
-]);
-const audioCtx = new AudioContext();
-const NATURAL_OFFSETS = [0, 2, 4, 5, 7, 9, 11];
-let selectColourSample = null;
-async function runAudio(audio) {
-  if (muted) {
-    return;
-  }
-  audio.currentTime = 0;
-  await audio.play().catch((e2) => {
-    console.error(e2);
-  });
-}
-async function loadSample(url2) {
-  try {
-    const res2 = await fetch(url2);
-    if (!res2.ok) {
-      throw new Error(
-        `Failed to fetch audio ${res2.status} ${res2.statusText}`
-      );
-    }
-    const buffer = await res2.arrayBuffer();
-    const audioData = await audioCtx.decodeAudioData(buffer);
-    return audioData;
-  } catch (e2) {
-    console.log("Failed to load audio sample:", e2);
-  }
-  return null;
-}
-function playSample(sample, sampleNote = 1, playNote = 1) {
-  if (muted) {
-    return;
-  }
-  const source = audioCtx.createBufferSource();
-  source.buffer = sample;
-  source.playbackRate.value = 2 ** ((playNote - sampleNote) / 12);
-  source.connect(audioCtx.destination);
-  source.start(0);
-}
-function getNaturalNotes(octave, count) {
-  const notes = [];
-  let i4 = 0;
-  while (notes.length < count) {
-    const offset = NATURAL_OFFSETS[i4 % NATURAL_OFFSETS.length];
-    notes.push(octave * 12 + offset);
-    i4++;
-    if (i4 % NATURAL_OFFSETS.length === 0) {
-      octave++;
-    }
-  }
-  return notes;
-}
-async function getDefaultSample(name) {
-  const defaultInfo = DEFAULT_SAMPLE_INFOS.get(name);
-  if (!defaultInfo) {
-    return null;
-  }
-  const audioBuffer = await loadSample(defaultInfo.url);
-  if (!audioBuffer) {
-    return null;
-  }
-  const sample =
-    /**@type {Sample}*/
-    {
-      audioBuffer,
-      baseNote: defaultInfo.baseNote,
-    };
-  return sample;
-}
-function setSelectColourSample(sample) {
-  selectColourSample = sample;
 }
 /**
  * @license
@@ -8185,11 +8591,11 @@ class Header extends i$2 {
         sidebarPresent
           ? x$1`
 				<button id="sidebarButton" type="button" class="header-menu" onclick="sidebar?.open()">
-					<img src="./svg/menu.svg" alt="Menu" width="36" height="36">
+					<img src="/svg/menu.svg" alt="Menu" width="36" height="36">
 				</button>`
           : x$1``
       }
-			<img src="./images/rplace.png" alt="Rplace logo">
+			<img src="/images/rplace.png" alt="Rplace logo">
 			<h1>${this.title}</h1>
 			<button type="button" id="accountButton" class="header-account" @click=${
         this.#handleAccountButtonClick
@@ -8202,6 +8608,129 @@ class Header extends i$2 {
   }
 }
 customElements.define("r-header", Header, { extends: "header" });
+const AUDIOS = {
+  invalid: new Audio("/sounds/invalid.mp3"),
+  highlight: new Audio("/sounds/highlight.mp3"),
+  selectColour: new Audio("/sounds/select-colour.mp3"),
+  closePalette: new Audio("/sounds/close-palette.mp3"),
+  cooldownStart: new Audio("/sounds/cooldown-start.mp3"),
+  cooldownEnd: new Audio("/sounds/cooldown-end.mp3"),
+  bell: new Audio("/sounds/bell.mp3"),
+  celebration: new Audio("/sounds/celebration.mp3"),
+};
+const DEFAULT_SAMPLE_INFOS = /* @__PURE__ */ new Map([
+  ["default", { url: "/sounds/select-colour.mp3", baseNote: 86 }],
+  // D6
+  ["piano", { url: "/sounds/piano-c5.mp3", baseNote: 72 }],
+  // C5
+  ["bell", { url: "/sounds/bell.mp3", baseNote: 86 }],
+  // TODO: D6 (86) is probably inaccurate
+]);
+const muteButton =
+  /**@type {HTMLButtonElement}*/
+  $$1("#muteButton");
+const muteButtonImage =
+  /**@type {HTMLImageElement}*/
+  $$1("#muteButtonImage");
+const placeChatButton =
+  /**@type {HTMLButtonElement}*/
+  $$1("#placeChatButton");
+const placeChatButtonImage =
+  /**@type {HTMLImageElement}*/
+  $$1("#placeChatButtonImage");
+let muted = localStorage.muted === "true";
+let placeChat = localStorage.placeChat === "true";
+if (localStorage.muted !== "true") {
+  localStorage.muted = "false";
+}
+if (localStorage.placeChat !== "false") {
+  localStorage.placeChat = "true";
+}
+window.addEventListener("DOMContentLoaded", function () {
+  muteButtonImage.src = muted ? "/svg/muted.svg" : "/svg/unmuted.svg";
+  placeChatButtonImage.style.opacity = placeChat ? "1" : "0.6";
+});
+muteButton.addEventListener("click", function () {
+  muted = !muted;
+  localStorage.muted = String(muted);
+  muteButtonImage.src = muted ? "/svg/muted.svg" : "/svg/unmuted.svg";
+});
+placeChatButton.addEventListener("click", function () {
+  placeChat = !placeChat;
+  localStorage.placeChat = String(placeChat);
+  placeChatButtonImage.style.opacity = placeChat ? "1" : "0.6";
+});
+const audioCtx = new AudioContext();
+const NATURAL_OFFSETS = [0, 2, 4, 5, 7, 9, 11];
+let selectColourSample = null;
+async function runAudio(audio) {
+  if (muted) {
+    return;
+  }
+  audio.currentTime = 0;
+  await audio.play().catch((e2) => {
+    console.error(e2);
+  });
+}
+async function loadSample(url2) {
+  try {
+    const res2 = await fetch(url2);
+    if (!res2.ok) {
+      throw new Error(
+        `Failed to fetch audio ${res2.status} ${res2.statusText}`
+      );
+    }
+    const buffer = await res2.arrayBuffer();
+    const audioData = await audioCtx.decodeAudioData(buffer);
+    return audioData;
+  } catch (e2) {
+    console.error("Failed to load audio sample:", e2);
+  }
+  return null;
+}
+function playSample(sample, sampleNote = 1, playNote = 1) {
+  if (muted) {
+    return;
+  }
+  const source = audioCtx.createBufferSource();
+  source.buffer = sample;
+  source.playbackRate.value = 2 ** ((playNote - sampleNote) / 12);
+  source.connect(audioCtx.destination);
+  source.start(0);
+}
+function getNaturalNotes(octave, count) {
+  const notes = [];
+  let i4 = 0;
+  while (notes.length < count) {
+    const offset = NATURAL_OFFSETS[i4 % NATURAL_OFFSETS.length];
+    notes.push(octave * 12 + offset);
+    i4++;
+    if (i4 % NATURAL_OFFSETS.length === 0) {
+      octave++;
+    }
+  }
+  return notes;
+}
+async function getDefaultSample(name) {
+  const defaultInfo = DEFAULT_SAMPLE_INFOS.get(name);
+  if (!defaultInfo) {
+    return null;
+  }
+  const audioBuffer = await loadSample(defaultInfo.url);
+  if (!audioBuffer) {
+    return null;
+  }
+  const sample =
+    /**@type {Sample}*/
+    {
+      audioBuffer,
+      baseNote: defaultInfo.baseNote,
+    };
+  return sample;
+}
+function setSelectColourSample(sample) {
+  selectColourSample = sample;
+}
 let enableWebglCanvas = localStorage.enableWebglCanvas === "true";
 let enableNewOverlayMenu = localStorage.enableNewOverlayMenu === "true";
 let enableMelodicPalette = localStorage.enableMelodicPalette === "true";
@@ -8266,6 +8795,999 @@ editLocalStorageList.addEventListener("itemadd", (e2) => {
   const { key, value } = e2.detail;
   localStorage.setItem(key, value);
 });
+let BOARD = null;
+let CHANGES = null;
+let RAW_BOARD = null;
+let SOCKET_PIXELS = null;
+let PALETTE_USABLE_REGION = DEFAULT_PALETTE_USABLE_REGION;
+let PALETTE = DEFAULT_PALETTE;
+let WIDTH = DEFAULT_WIDTH;
+let HEIGHT = DEFAULT_HEIGHT;
+let COOLDOWN = DEFAULT_COOLDOWN;
+const intIdNames = /* @__PURE__ */ new Map();
+let intIdPositions = /* @__PURE__ */ new Map();
+let intId = null;
+let chatName = null;
+let connectStatus = "connecting";
+let canvasLocked = false;
+let placementMode = PLACEMENT_MODE.selectPixel;
+const spectators = /* @__PURE__ */ new Set();
+let spectatingIntId = null;
+let cooldownEndDate = null;
+let onCooldown = false;
+let preloadedBoard = fetchBoard();
+let fetchCooldown = 50;
+let fetchFailTimeout = null;
+const httpServerUrl = (localStorage.server || DEFAULT_SERVER)
+  .replace("wss://", "https://")
+  .replace("ws://", "http://");
+const res = await fetch(
+  `${httpServerUrl}/public/game-worker.js?v=${Date.now()}`
+);
+const code = await res.text();
+const blob = new Blob([code], { type: "application/javascript" });
+const url = URL.createObjectURL(blob);
+const wsCapsule = new Worker(url, {
+  type: "module",
+});
+wsCapsule.addEventListener("message", handleIpcMessage);
+window.addEventListener("beforeunload", (e2) => {
+  console.log("Stopping wsCapsule...");
+  sendIpcMessage(wsCapsule, "stop");
+});
+const injectedCjs = document.createElement("script");
+injectedCjs.innerHTML = `
+	delete WebSocket;
+	delete Worker;
+	Object.defineProperty(window, "eval", {
+		value: function() { throw new Error() },
+		writable: false,
+		configurable: false
+	});
+`;
+document.body.appendChild(injectedCjs);
+const automated = navigator.webdriver;
+function handleConnect() {
+  connectStatus = "connected";
+  if (automated) {
+    const activityObj = {
+      windowOuterWidth: window.outerWidth,
+      windowInnerWidth: window.innerWidth,
+      windowOuterHeight: window.outerHeight,
+      windowInnerHeight: window.innerHeight,
+      localStorage: { ...localStorage },
+    };
+    sendIpcMessage(wsCapsule, "informAutomatedActivity", activityObj);
+  }
+}
+addIpcMessageHandler("handleConnect", handleConnect);
+function handlePalette({ palette: palette2, paletteUsableRegion }) {
+  PALETTE = palette2;
+  PALETTE_USABLE_REGION.start = paletteUsableRegion.start;
+  PALETTE_USABLE_REGION.end = paletteUsableRegion.end;
+  const paletteEvent = new CustomEvent("palette", {
+    detail: { palette: palette2, paletteUsableRegion },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(paletteEvent);
+}
+addIpcMessageHandler("handlePalette", handlePalette);
+function handleCooldownInfo({ endDate, cooldown }) {
+  setCooldown(endDate.getTime());
+  COOLDOWN = cooldown;
+  const cooldownEvent = new CustomEvent("cooldown", {
+    detail: { endDate, cooldown },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(cooldownEvent);
+}
+addIpcMessageHandler("handleCooldownInfo", handleCooldownInfo);
+async function handleCanvasInfo({ width, height }) {
+  setSize(width, height);
+  const board = await preloadedBoard;
+  if (!board) {
+    throw new Error("Couldn't handle canvas info: Preloaded board was null");
+  }
+  const dataArr = new Uint8Array(board);
+  BOARD = new Uint8Array(length);
+  let boardI = 0;
+  let colour = 0;
+  for (let i4 = 0; i4 < board.byteLength; i4++) {
+    if (i4 % 2 == 0) {
+      colour = dataArr[i4];
+      continue;
+    }
+    for (let j2 = 0; j2 < dataArr[i4] + 1; j2++) {
+      BOARD[boardI] = colour;
+      boardI++;
+    }
+  }
+  const boardLoadedEvent = new CustomEvent("boardloaded", {
+    detail: {},
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(boardLoadedEvent);
+}
+addIpcMessageHandler("handleCanvasInfo", handleCanvasInfo);
+async function handleChanges({ width, height, changes }) {
+  if (width != WIDTH || height != HEIGHT) {
+    setSize(width, height);
+  }
+  const board = await preloadedBoard;
+  if (!board) {
+    throw new Error("Couldn't handle changes: Preloaded board was null");
+  }
+  RAW_BOARD = new Uint8Array(board);
+  BOARD = new Uint8Array(RAW_BOARD);
+  CHANGES = new Uint8Array(width * height).fill(255);
+  SOCKET_PIXELS = new Uint8Array(width * height).fill(255);
+  let i4 = 0;
+  let boardI = 0;
+  const view = new DataView(changes);
+  while (i4 < changes.byteLength) {
+    let cell = view.getUint8(i4++);
+    let c2 = cell >> 6;
+    if (c2 == 1) c2 = view.getUint8(i4++);
+    else if (c2 == 2) (c2 = view.getUint16(i4++)), i4++;
+    else if (c2 == 3) (c2 = view.getUint32(i4++)), (i4 += 3);
+    boardI += c2;
+    BOARD[boardI] = cell & 63;
+    CHANGES[boardI] = cell & 63;
+    boardI++;
+  }
+  const boardLoadedEvent = new CustomEvent("boardloaded", {
+    detail: {},
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(boardLoadedEvent);
+}
+addIpcMessageHandler("handleChanges", handleChanges);
+function setOnline(count) {
+  const onlineEvent = new CustomEvent("online", {
+    detail: { count },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(onlineEvent);
+}
+addIpcMessageHandler("setOnline", setOnline);
+function handlePlacerInfoRegion({ position, width, height, region }) {
+  const regionView = new DataView(region);
+  let i4 = position;
+  let regionI = 0;
+  while (regionI < region.byteLength) {
+    for (let xi = i4; xi < i4 + width; xi++) {
+      const placerIntId = regionView.getUint32(regionI);
+      if (placerIntId !== 4294967295) {
+        intIdPositions.set(xi, placerIntId);
+      }
+      regionI += 4;
+    }
+    i4 += WIDTH;
+  }
+  const placerInfoEvent = new CustomEvent("placerinfo", {
+    detail: { intIdPositions },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(placerInfoEvent);
+}
+addIpcMessageHandler("handlePlacerInfoRegion", handlePlacerInfoRegion);
+function handleSetIntId(newIntId) {
+  intId = newIntId;
+  const intIdEvent = new CustomEvent("intid", {
+    detail: { intId },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(intIdEvent);
+}
+addIpcMessageHandler("handleSetIntId", handleSetIntId);
+function handleSetCanvasLocked({ locked, reason }) {
+  canvasLocked = locked;
+  const canvasLockedEvent = new CustomEvent("canvaslocked", {
+    detail: { locked, reason },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(canvasLockedEvent);
+}
+addIpcMessageHandler("setCanvasLocked", handleSetCanvasLocked);
+function handlePixels(pixels) {
+  for (const pixel of pixels) {
+    setPixelI(pixel.position, pixel.colour);
+    if (pixel.placer) {
+      intIdPositions.set(pixel.position, pixel.placer);
+      if (pixel.placer === spectatingIntId) {
+        const spectatedPixelEvent = new CustomEvent("spectatedpixel", {
+          detail: {
+            position: pixel.position,
+            colour: pixel.colour,
+            placer: pixel.placer,
+          },
+          bubbles: true,
+          composed: true,
+        });
+        window.dispatchEvent(spectatedPixelEvent);
+      }
+    }
+  }
+  const pixelsEvent = new CustomEvent("pixels", {
+    detail: { pixels },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(pixelsEvent);
+}
+addIpcMessageHandler("handlePixels", handlePixels);
+function handleRejectedPixel({ endDate, position, colour }) {
+  setCooldown(endDate.getTime());
+  setPixelI(position, colour);
+  const x2 = position % WIDTH;
+  const y3 = Math.floor(position / WIDTH);
+  const pixelsEvent = new CustomEvent("rejectedpixel", {
+    detail: { position, x: x2, y: y3, colour, cooldownEndDate: endDate },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(pixelsEvent);
+}
+addIpcMessageHandler("handleRejectedPixel", handleRejectedPixel);
+function handleCooldown({ endDate }) {
+  setCooldown(endDate.getTime());
+}
+addIpcMessageHandler("handleCooldown", handleCooldown);
+function setChatName(name) {
+  chatName = name;
+  const chatNameEvent = new CustomEvent("chatname", {
+    detail: { chatName },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(chatNameEvent);
+}
+addIpcMessageHandler("setChatName", setChatName);
+function handleNameInfo(newIntIdNames) {
+  for (const [key, value] of newIntIdNames.entries()) {
+    intIdNames.set(key, value);
+  }
+}
+addIpcMessageHandler("handleNameInfo", handleNameInfo);
+function addLiveChatMessage({ message, channel }) {
+  const liveChatMessageEvent = new CustomEvent("livechatmessage", {
+    detail: { message, channel },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(liveChatMessageEvent);
+}
+addIpcMessageHandler("addLiveChatMessage", addLiveChatMessage);
+function addPlaceChatMessage(message) {
+  const placeChatMessageEvent = new CustomEvent("placechatmessage", {
+    detail: { message },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(placeChatMessageEvent);
+}
+addIpcMessageHandler("addPlaceChatMessage", addPlaceChatMessage);
+function handleLiveChatDelete(messageId) {
+  const liveChatDeleteEvent = new CustomEvent("livechatdelete", {
+    detail: { messageId },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(liveChatDeleteEvent);
+}
+addIpcMessageHandler("handleLiveChatDelete", handleLiveChatDelete);
+function handleLiveChatReaction({ messageId, reactorId, reactionKey }) {
+  const liveChatReactionEvent = new CustomEvent("livechatreaction", {
+    detail: { messageId, reactorId, reactionKey },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(liveChatReactionEvent);
+}
+addIpcMessageHandler("handleLiveChatReaction", handleLiveChatReaction);
+function applyPunishment(info) {
+  const punishmentEvent = new CustomEvent("punishment", {
+    detail: info,
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(punishmentEvent);
+}
+addIpcMessageHandler("applyPunishment", applyPunishment);
+function handleDisconnect({ code: code2, reason }) {
+  localStorage.lastDisconnect = Date.now();
+  connectStatus = "disconnected";
+  setCooldown(null);
+  wsCapsule.terminate();
+  const disconnectEvent = new CustomEvent("disconnect", {
+    detail: { code: code2, reason },
+    composed: true,
+    bubbles: true,
+  });
+  window.dispatchEvent(disconnectEvent);
+}
+addIpcMessageHandler("handleDisconnect", handleDisconnect);
+async function handleChallenge({ source, input }) {
+  const result = await Object.getPrototypeOf(async function () {}).constructor(
+    source
+  )(input);
+  sendIpcMessage(wsCapsule, "sendChallengeResult", result);
+}
+addIpcMessageHandler("handleChallenge", handleChallenge);
+function handleSpectating(userIntId) {
+  spectatingIntId = userIntId;
+  const spectatingEvent = new CustomEvent("spectating", {
+    detail: { userIntId },
+    composed: true,
+    bubbles: true,
+  });
+  window.dispatchEvent(spectatingEvent);
+}
+addIpcMessageHandler("handleSpectating", handleSpectating);
+function handleUnspectating({ userIntId, reason }) {
+  if (spectatingIntId === userIntId) {
+    spectatingIntId = null;
+  }
+  const unspectatingEvent = new CustomEvent("unspectating", {
+    detail: { userIntId, reason },
+    composed: true,
+    bubbles: true,
+  });
+  window.dispatchEvent(unspectatingEvent);
+}
+addIpcMessageHandler("handleUnspectating", handleUnspectating);
+function handleSpectated(spectatorIntId) {
+  spectators.add(spectatorIntId);
+}
+addIpcMessageHandler("handleSpectated", handleSpectated);
+function handleUnspectated(spectatorIntId) {
+  spectators.delete(spectatorIntId);
+}
+addIpcMessageHandler("handleUnspectated", handleUnspectated);
+async function fetchBoard() {
+  const response = await fetch(
+    (localStorage.board || DEFAULT_BOARD) + "?v=" + Date.now()
+  );
+  if (!response.ok) {
+    const fetchBoardFailEvent = new CustomEvent("fetchboardfail", {
+      detail: { type: "badresponse" },
+      bubbles: true,
+      composed: true,
+    });
+    window.dispatchEvent(fetchBoardFailEvent);
+    fetchFailTimeout = setTimeout(fetchBoard, (fetchCooldown *= 2));
+    if (fetchCooldown > 8e3) {
+      clearTimeout(fetchFailTimeout);
+      const fetchBoardFailEvent2 = new CustomEvent("fetchboardfail", {
+        detail: { type: "timeout" },
+        bubbles: true,
+        composed: true,
+      });
+      window.dispatchEvent(fetchBoardFailEvent2);
+    }
+    return null;
+  }
+  if (fetchFailTimeout) {
+    clearTimeout(fetchFailTimeout);
+  }
+  return await response.arrayBuffer();
+}
+function setSize(width, height) {
+  WIDTH = width;
+  HEIGHT = height;
+  BOARD = new Uint8Array(width * height).fill(255);
+  const sizeEvent = new CustomEvent("size", {
+    detail: { width, height },
+    bubbles: true,
+    composed: true,
+  });
+  window.dispatchEvent(sizeEvent);
+}
+let cooldownTimeout = null;
+function setCooldown(endDate) {
+  if (cooldownTimeout !== null) {
+    clearTimeout(cooldownTimeout);
+    cooldownTimeout = null;
+  }
+  cooldownEndDate = endDate;
+  const now = Date.now();
+  if (endDate !== null) {
+    if (endDate > now) {
+      onCooldown = true;
+      cooldownTimeout = setTimeout(() => {
+        onCooldown = false;
+        const cooldownEndEvent = new CustomEvent("cooldownend", {
+          detail: { endDate, onCooldown },
+        });
+        window.dispatchEvent(cooldownEndEvent);
+      }, endDate - now);
+    } else {
+      onCooldown = false;
+    }
+  } else {
+    onCooldown = true;
+  }
+  const cooldownStartEvent = new CustomEvent("cooldownstart", {
+    detail: { endDate, onCooldown },
+  });
+  window.dispatchEvent(cooldownStartEvent);
+}
+function setPixelI(index2, colour) {
+  if (!BOARD || !SOCKET_PIXELS) {
+    console.error("Could not set pixel: Board or socket pixels was null");
+    return;
+  }
+  BOARD[index2] = colour;
+  SOCKET_PIXELS[index2] = colour;
+}
+const palette$1 =
+  /**@type {HTMLElement}*/
+  $$1("#palette");
+const colours$1 =
+  /**@type {HTMLElement}*/
+  $$1("#colours");
+function showPalette() {
+  palette$1.style.transform = "";
+  runAudio(AUDIOS.highlight);
+}
+function generatePalette() {
+  colours$1.innerHTML = "";
+  for (
+    let i4 = PALETTE_USABLE_REGION.start;
+    i4 < PALETTE_USABLE_REGION.end;
+    i4++
+  ) {
+    const colour = PALETTE[i4] || 0;
+    const colourEl = document.createElement("div");
+    colourEl.dataset.index = String(i4);
+    colourEl.style.background = `rgba(${colour & 255},${(colour >> 8) & 255},${
+      (colour >> 16) & 255
+    }, 1)`;
+    if (colour == 4294967295) {
+      colourEl.style.outline = "1px #ddd solid";
+      colourEl.style.outlineOffset = "-1px";
+    }
+    const indicatorSpan = document.createElement("span");
+    indicatorSpan.contentEditable = "true";
+    indicatorSpan.onkeydown = function (event) {
+      rebindIndicator(event, i4);
+    };
+    colourEl.appendChild(indicatorSpan);
+    colours$1.appendChild(colourEl);
+  }
+}
+function hideIndicators() {
+  for (let c2 = 0; c2 < colours$1.children.length; c2++) {
+    const indicator =
+      /**@type {HTMLElement}*/
+      colours$1.children[c2]?.firstElementChild;
+    if (indicator?.style.visibility !== "hidden") {
+      indicator.style.visibility = "hidden";
+    }
+  }
+}
+function rebindIndicator(e2, i4) {
+  const indicator =
+    /**@type {HTMLElement}*/
+    e2.target;
+  if (!e2.key || e2.key.length != 1 || !indicator) {
+    return;
+  }
+  indicator.innerText = e2.key;
+  indicator.blur();
+  let binds = (localStorage.paletteKeys || DEFAULT_PALETTE_KEYS).split("");
+  const preExisting = binds.indexOf(e2.key);
+  if (preExisting != -1) {
+    binds[preExisting] = "​";
+  }
+  binds[i4] = e2.key.charAt(0);
+  localStorage.paletteKeys = binds.join("");
+  generateIndicators(binds.join(""));
+}
+function generateIndicators(keybinds) {
+  for (let c2 = 0; c2 < colours$1.children.length; c2++) {
+    const indicator =
+      /**@type {HTMLElement}*/
+      colours$1.children[c2].firstChild;
+    indicator.textContent = keybinds.charAt(c2);
+  }
+}
+function init() {
+  generatePalette();
+  generateIndicators(localStorage.paletteKeys || DEFAULT_PALETTE_KEYS);
+}
+if (document.readyState !== "loading") {
+  init();
+} else {
+  window.addEventListener("DOMContentLoaded", init);
+}
+const viewport$1 =
+  /**@type {HTMLElement}*/
+  $$1("#viewport");
+const canvParent1$1 =
+  /**@type {HTMLElement}*/
+  $$1("#canvparent1");
+const canvParent2$1 =
+  /**@type {HTMLElement}*/
+  $$1("#canvparent2");
+const canvas$1 =
+  /**@type {HTMLCanvasElement}*/
+  $$1("#canvas");
+const viewportCanvas =
+  /**@type {HTMLCanvasElement}*/
+  $$1("#viewportCanvas");
+const placeContext$1 =
+  /**@type {HTMLElement}*/
+  $$1("#placeContext");
+const canvSelect$1 =
+  /**@type {HTMLElement}*/
+  $$1("#canvselect");
+const placeChatMessages$1 =
+  /**@type {HTMLElement}*/
+  $$1("#placeChatMessages");
+const positionIndicator =
+  /**@type {import("./game-elements.js").PositionIndicator}*/
+  $$1("#positionIndicator");
+const idPosition =
+  /**@type {HTMLElement}*/
+  $$1("#idPosition");
+const idPositionPlacer =
+  /**@type {HTMLElement}*/
+  $$1("#idPositionPlacer");
+VIEWPORT_MODE.placePixels;
+let boardRenderer = null;
+let canvasCtx = canvas$1.getContext("2d");
+if (enableWebglCanvas) {
+  try {
+    boardRenderer = new BoardRenderer(viewportCanvas);
+    canvas$1.style.opacity = "0";
+  } catch (e2) {
+    console.error(e2);
+  }
+}
+let x = 0;
+let y2 = 0;
+let z2 = 0;
+let minZoom = 0;
+let moved = 3;
+let touch1 = null;
+let touch2 = null;
+let touchMoveDistance = 15;
+viewport$1.addEventListener("touchstart", function (e2) {
+  if (!(e2 instanceof Event) || !e2.isTrusted) {
+    return;
+  }
+  e2.preventDefault();
+  for (let i4 = 0; i4 < e2.changedTouches.length; i4++) {
+    const touch = e2.changedTouches[i4];
+    if (!touch1) {
+      touch1 = touch;
+      touchMoveDistance = 15;
+    } else if (!touch2) {
+      touch2 = touch;
+    } else {
+      [touch1, touch2] = [touch2, touch];
+    }
+  }
+});
+viewport$1.addEventListener("touchend", function (e2) {
+  if (
+    !(e2 instanceof Event) ||
+    !e2.isTrusted ||
+    !(e2.target instanceof HTMLElement)
+  ) {
+    return;
+  }
+  for (let i4 = 0; i4 < e2.changedTouches.length; i4++) {
+    const t2 = e2.changedTouches[i4];
+    assign2: {
+      if (touch2 && touch2.identifier === t2.identifier) {
+        touch2 = null;
+      } else if (touch1 && touch1.identifier === t2.identifier) {
+        [touch1, touch2] = [touch2, null];
+        if (
+          touchMoveDistance > 0 &&
+          e2.target instanceof Node &&
+          canvParent2$1.contains(e2.target)
+        ) {
+          if (!isCanvasDragRegion(e2.target)) {
+            break assign2;
+          }
+          clicked(t2.clientX, t2.clientY);
+        }
+      }
+    }
+    let target =
+      /** @type {HTMLElement|null} */
+      e2.target;
+    if (target && "value" in target) {
+      target.focus();
+    }
+    while (target && !target.dispatchEvent) {
+      target = target.parentElement;
+    }
+    if (touchMoveDistance > 0 && target) {
+      target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    }
+  }
+  e2.preventDefault();
+});
+viewport$1.addEventListener("touchmove", function (e2) {
+  if (
+    !(e2 instanceof Event) ||
+    !e2.isTrusted ||
+    !(e2.target instanceof HTMLElement)
+  ) {
+    return;
+  }
+  for (let i4 = 0; i4 < e2.changedTouches.length; i4++) {
+    const touch = e2.changedTouches[i4];
+    if (!touch) {
+      continue;
+    }
+    if (zoomAnim) {
+      clearInterval(zoomAnim);
+    }
+    const touchTarget =
+      /**@type {HTMLElement}*/
+      e2.target;
+    if (!touch2 && touch1 && touch1.identifier == touch.identifier) {
+      touchMoveDistance -=
+        Math.abs(touch.clientY - touch1.clientY) +
+        Math.abs(touch.clientX - touch1.clientX);
+      if (e2.target != viewport$1 && !canvParent2$1.contains(touchTarget)) {
+        break;
+      }
+      x -= (touch.clientX - touch1.clientX) / (z2 * 50);
+      y2 -= (touch.clientY - touch1.clientY) / (z2 * 50);
+      pos();
+    } else if (touch1 && touch2) {
+      if (e2.target != viewport$1 && !canvParent2$1.contains(touchTarget)) {
+        break;
+      }
+      let currentTouch =
+        touch1.identifier == touch.identifier
+          ? touch1
+          : touch2.identifier == touch.identifier
+          ? touch2
+          : null;
+      if (!currentTouch) {
+        break;
+      }
+      const otherTouch = currentTouch == touch1 ? touch2 : touch1;
+      x -= (touch.clientX - currentTouch.clientX) / (z2 * 50);
+      y2 -= (touch.clientY - currentTouch.clientY) / (z2 * 50);
+      touchMoveDistance -=
+        Math.abs(touch.clientY - currentTouch.clientY) +
+        Math.abs(touch.clientX - currentTouch.clientX);
+      let dx = currentTouch.clientX - otherTouch.clientX;
+      let dy = currentTouch.clientY - otherTouch.clientY;
+      let initialDistance = dx * dx + dy * dy;
+      dx = touch.clientX - otherTouch.clientX;
+      dy = touch.clientY - otherTouch.clientY;
+      const scale = Math.sqrt((dx * dx + dy * dy) / initialDistance);
+      z2 *= scale;
+      pos();
+    }
+    if (touch1 && touch1.identifier == touch.identifier) touch1 = touch;
+    else if (touch2 && touch2.identifier == touch.identifier) touch2 = touch;
+  }
+});
+let mouseDown = 0;
+let mx = 0;
+let my = 0;
+viewport$1.addEventListener("mousemove", function (e2) {
+  if (
+    !(e2 instanceof Event) ||
+    !e2.isTrusted ||
+    !(e2.target instanceof HTMLElement)
+  ) {
+    return;
+  }
+  if (!isCanvasDragRegion(e2.target)) {
+    return;
+  }
+  moved--;
+  let dx = -(mx - (mx = e2.clientX - innerWidth / 2));
+  let dy = -(my - (my = e2.clientY - viewport$1.offsetHeight / 2));
+  if (dx != dx || dy != dy) {
+    return;
+  }
+  if (mouseDown) {
+    x -= dx / (z2 * 50);
+    y2 -= dy / (z2 * 50);
+    pos();
+    if (zoomAnim) {
+      clearInterval(zoomAnim);
+    }
+  }
+});
+viewport$1.addEventListener("wheel", function (e2) {
+  if (
+    !(e2 instanceof Event) ||
+    !e2.isTrusted ||
+    !(e2.target instanceof HTMLElement)
+  ) {
+    return;
+  }
+  if (!isCanvasDragRegion(e2.target)) {
+    return;
+  }
+  const d2 = Math.max(
+    minZoom / z2,
+    Math.min(3 ** Math.max(-0.5, Math.min(0.5, e2.deltaY * -0.01)), 1 / z2)
+  );
+  z2 *= d2;
+  x += (mx * (d2 - 1)) / z2 / 50;
+  y2 += (my * (d2 - 1)) / z2 / 50;
+  pos();
+});
+viewport$1.addEventListener("mousedown", function (e2) {
+  if (!(e2 instanceof Event) || !e2.isTrusted) {
+    return;
+  }
+  moved = 3;
+  mouseDown = e2.button + 1;
+  if (placeContext$1.style.display == "block") {
+    placeContext$1.style.display = "none";
+  }
+});
+viewport$1.addEventListener("mouseup", function (e2) {
+  if (
+    !(e2 instanceof Event) ||
+    !e2.isTrusted ||
+    !(e2.target instanceof HTMLElement)
+  ) {
+    return;
+  }
+  if (!isCanvasDragRegion(e2.target)) {
+    moved = 3;
+    mouseDown = 0;
+    return;
+  }
+  if (moved > 0 && canvParent2$1.contains(e2.target)) {
+    clicked(e2.clientX, e2.clientY);
+  }
+  moved = 3;
+  mouseDown = 0;
+});
+viewport$1.addEventListener("contextmenu", function (e2) {
+  if (
+    !(e2 instanceof Event) ||
+    !e2.isTrusted ||
+    !(e2.target instanceof HTMLElement)
+  ) {
+    return;
+  }
+  placeContext$1.style.display = "block";
+  const { x: x2, y: y3 } = screenToCanvas(e2.clientX, e2.clientY);
+  setPlaceContextPosition(x2, y3);
+});
+let zoomAnim = null;
+function clicked(clientX, clientY) {
+  if (zoomAnim) {
+    clearInterval(zoomAnim);
+  }
+  clientX = Math.floor(x + (clientX - innerWidth / 2) / z2 / 50) + 0.5;
+  clientY =
+    Math.floor(y2 + (clientY - viewport$1.offsetHeight / 2) / z2 / 50) + 0.5;
+  if (clientX == Math.floor(x) + 0.5 && clientY == Math.floor(y2) + 0.5) {
+    clientX -= 0.5;
+    clientY -= 0.5;
+    if ((cooldownEndDate ?? 0) < Date.now()) {
+      zoomIn();
+      showPalette();
+    } else {
+      runAudio(AUDIOS.invalid);
+    }
+    return;
+  }
+  runAudio(
+    (cooldownEndDate ?? 0) > Date.now() ? AUDIOS.invalid : AUDIOS.highlight
+  );
+  zoomAnim = setInterval(function () {
+    x += (clientX - x) / 10;
+    y2 += (clientY - y2) / 10;
+    pos();
+    if (zoomAnim && Math.abs(clientX - x) + Math.abs(clientY - y2) < 0.1) {
+      clearInterval(zoomAnim);
+    }
+  }, 15);
+}
+function transform() {
+  const scale = z2 * 50;
+  const translateX = x * z2 * -50;
+  const translateY = y2 * z2 * -50;
+  const width = z2 * canvas$1.width * 50;
+  const height = z2 * canvas$1.height * 50;
+  canvParent1$1.style.transform = `translate(${
+    translateX + innerWidth / 2
+  }px, ${translateY + viewport$1.offsetHeight / 2}px) scale(${scale})`;
+  canvParent2$1.style.transform = canvParent1$1.style.transform;
+  canvSelect$1.style.transform = `translate(${Math.floor(x)}px, ${Math.floor(
+    y2
+  )}px) scale(0.01)`;
+  placeChatMessages$1.style.transform = `translate(${
+    translateX + innerWidth / 2
+  }px, ${translateY + viewport$1.offsetHeight / 2}px) scale(${z2 * 5})`;
+  canvas$1.style.width = `${width}px`;
+  canvas$1.style.height = `${height}px`;
+  canvas$1.style.transform = `translate(${translateX}px, ${translateY}px)`;
+  canvas$1.style.imageRendering =
+    z2 < 1 / 50 / devicePixelRatio ? "initial" : "";
+}
+function isCanvasDragRegion(element) {
+  return (
+    element === viewport$1 ||
+    canvParent2$1.contains(element) ||
+    placeChatMessages$1.contains(element)
+  );
+}
+function screenToCanvas(clientX, clientY) {
+  const scale = z2 * 50;
+  const translateX = x * z2 * -50;
+  const translateY = y2 * z2 * -50;
+  const canvasX = (clientX - innerWidth / 2 - translateX) / scale;
+  const canvasY = (clientY - viewport$1.offsetHeight / 2 - translateY) / scale;
+  return { x: canvasX, y: canvasY };
+}
+function setCanvasAttachmentPosition(element, px, py, z3) {
+  const scale = z3 * 50;
+  const translateX = x * z3 * -50;
+  const translateY = y2 * z3 * -50;
+  const screenX = px * scale + translateX + viewport$1.offsetWidth / 2;
+  const screenY = py * scale + translateY + viewport$1.offsetHeight / 2;
+  element.style.left = `${screenX}px`;
+  element.style.top = `${screenY}px`;
+}
+function setPlaceContextPosition(canvX, canvY) {
+  if (placeContext$1.style.display === "block") {
+    placeContext$1.dataset.x = String(canvX);
+    placeContext$1.dataset.y = String(canvY);
+    setCanvasAttachmentPosition(placeContext$1, canvX, canvY, z2);
+  }
+}
+function setPlaceChatPosition(element, posX, posY) {
+  element.style.left = `${posX * 10}px`;
+  element.style.top = `${posY * 10}px`;
+}
+let idPositionDebounce = false;
+let idPositionTimeout = null;
+let lastIntX = Math.floor(x);
+let lastIntY = Math.floor(y2);
+function pos(newX = x, newY = y2, newZ = z2) {
+  newX = x = Math.max(Math.min(newX, WIDTH - 1), 0);
+  newY = y2 = Math.max(Math.min(newY, HEIGHT - 1), 0);
+  newZ = z2 = Math.min(Math.max(newZ, minZoom), 1);
+  const right = newX - canvas$1.width + 0.01;
+  const left = newX;
+  const up = newY - canvas$1.height + 0.01;
+  const down = newY;
+  if (right >= left) {
+    newX = 0;
+  } else if (right > 0) {
+    newX -= right;
+  } else if (left < 0) {
+    newX -= left;
+  }
+  if (up >= down) {
+    newY = 0;
+  } else if (up > 0) {
+    newY -= up;
+  } else if (down < 0) {
+    newY -= down;
+  }
+  localStorage.x = Math.floor(newX) + 0.5;
+  localStorage.y = Math.floor(newY) + 0.5;
+  localStorage.z = newZ;
+  transform();
+  boardRenderer?.setPosition(x, y2, z2);
+  const canvX = Number(placeContext$1.dataset.x);
+  const canvY = Number(placeContext$1.dataset.y);
+  setPlaceContextPosition(canvX, canvY);
+  if (positionIndicator.setPosition) {
+    positionIndicator.setPosition(x, y2, z2);
+  }
+  const intX = Math.floor(newX),
+    intY = Math.floor(newY);
+  if (intX != lastIntX || intY != lastIntY) {
+    if (idPositionTimeout) {
+      clearTimeout(idPositionTimeout);
+    }
+    idPosition.style.display = "none";
+    idPositionDebounce = false;
+  }
+  lastIntX = intX;
+  lastIntY = intY;
+  if (!idPositionDebounce) {
+    idPositionDebounce = true;
+    idPositionTimeout = setTimeout(() => {
+      idPositionDebounce = false;
+      let id = intIdPositions.get(intX + intY * WIDTH);
+      if (id === void 0 || id === null) {
+        const placersRadius = 15;
+        const centreX = Math.floor(Math.max(intX - placersRadius / 2, 0));
+        const centreY = Math.floor(Math.max(intY - placersRadius / 2, 0));
+        const width = Math.min(placersRadius, WIDTH - intX);
+        const height = Math.min(placersRadius, HEIGHT - intY);
+        const position = centreX + centreY * WIDTH;
+        if (connectStatus === "connected") {
+          sendIpcMessage(wsCapsule, "requestPixelPlacers", {
+            position,
+            width,
+            height,
+          });
+        }
+        return;
+      }
+      idPosition.style.display = "flex";
+      setPlaceChatPosition(idPosition, intX, intY);
+      idPositionPlacer.style.color = CHAT_COLOURS[hash("" + id) & 7];
+      idPositionPlacer.textContent = intIdNames.get(id) || "#" + id;
+    }, 1e3);
+  }
+}
+function zoomIn() {
+  if (z2 >= 0.4) {
+    return;
+  }
+  if (zoomAnim) {
+    clearInterval(zoomAnim);
+  }
+  let dz = 5e-3;
+  zoomAnim = setInterval(function () {
+    if (dz < 0.2) dz *= 1.1;
+    z2 *= 1 + dz;
+    pos();
+    if (zoomAnim && z2 >= 0.4) {
+      clearInterval(zoomAnim);
+    }
+  }, 15);
+}
+function moveTo(newX = x, newY = y2, newZ = z2, durationMs = 300) {
+  const startX = x;
+  const startY = y2;
+  const startZ = z2;
+  const startTime = Date.now();
+  const easeFunc = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    let t2 = elapsed / durationMs;
+    if (t2 >= 1) {
+      t2 = 1;
+    }
+    const currentX = lerp(startX, newX, t2);
+    const currentY = lerp(startY, newY, t2);
+    const currentZ = lerp(startZ, newZ, t2);
+    pos(currentX, currentY, currentZ);
+    if (t2 >= 1) {
+      clearInterval(easeFunc);
+      x = newX;
+      y2 = newY;
+      z2 = newZ;
+    }
+  }, 16);
+}
+function setMinZoom(value) {
+  minZoom = value;
+  pos();
+}
+function setX(value) {
+  x = value;
+}
+function setY(value) {
+  y2 = value;
+}
+function setZ(value) {
+  z2 = value;
+}
 const overlayMenu =
   /**@type {HTMLDialogElement}*/
   $$1("#overlayMenu");
@@ -8892,9 +10414,9 @@ var N2 = [0, 944331445];
 function x64hash128(input, seed) {
   var key = getUTF8Bytes(input);
   seed = seed || 0;
-  var length = [0, key.length];
-  var remainder = length[1] % 16;
-  var bytes = length[1] - remainder;
+  var length2 = [0, key.length];
+  var remainder = length2[1] % 16;
+  var bytes = length2[1] - remainder;
   var h1 = [0, seed];
   var h2 = [0, seed];
   var k1 = [0, 0];
@@ -9022,8 +10544,8 @@ function x64hash128(input, seed) {
       x64Multiply(k1, C2);
       x64Xor(h1, k1);
   }
-  x64Xor(h1, length);
-  x64Xor(h2, length);
+  x64Xor(h1, length2);
+  x64Xor(h2, length2);
   x64Add(h1, h2);
   x64Add(h2, h1);
   x64Fmix(h1);
@@ -11632,9 +13154,6 @@ const canvSelect =
 const canvas =
   /**@type {HTMLCanvasElement}*/
   $$1("#canvas");
-const viewportCanvas =
-  /**@type {HTMLCanvasElement}*/
-  $$1("#viewportCanvas");
 const placeChatMessages =
   /**@type {HTMLElement}*/
   $$1("#placeChatMessages");
@@ -11653,15 +13172,12 @@ const templateImage =
 const overlayMenuOld =
   /**@type {HTMLElement}*/
   $$1("#overlayMenuOld");
-const positionIndicator =
-  /**@type {import("./game-elements.js").PositionIndicator}*/
-  $$1("#positionIndicator");
-const idPosition =
-  /**@type {HTMLElement}*/
-  $$1("#idPosition");
-const idPositionPlacer =
-  /**@type {HTMLElement}*/
-  $$1("#idPositionPlacer");
+/**@type {import("./game-elements.js").PositionIndicator}*/
+$$1("#positionIndicator");
+/**@type {HTMLElement}*/
+$$1("#idPosition");
+/**@type {HTMLElement}*/
+$$1("#idPositionPlacer");
 const onlineCounter =
   /**@type {HTMLElement}*/
   $$1("#onlineCounter");
@@ -11895,15 +13411,6 @@ const themeDropParent =
 const advancedViewMenu =
   /**@type {HTMLElement}*/
   $$1("#advancedViewMenu");
-const viewCanvasLayer =
-  /**@type {HTMLInputElement}*/
-  $$1("#viewCanvasLayer");
-const viewChangesLayer =
-  /**@type {HTMLInputElement}*/
-  $$1("#viewChangesLayer");
-const viewSocketPixelsLayer =
-  /**@type {HTMLInputElement}*/
-  $$1("#viewSocketPixelsLayer");
 const spectateMenu =
   /**@type {HTMLElement}*/
   $$1("#spectateMenu");
@@ -11916,172 +13423,99 @@ const spectateUserIdInput =
 const spectateStatusLabel =
   /**@type {HTMLElement}*/
   $$1("#spectateStatusLabel");
-const intIdNames = /* @__PURE__ */ new Map();
-let intIdPositions = /* @__PURE__ */ new Map();
-let intId = null;
-let chatName = null;
-let connectStatus = "connecting";
-let canvasLocked = false;
 let currentTurnstileWidget = null;
-let placementMode = PLACEMENT_MODE.selectPixel;
-const spectators = /* @__PURE__ */ new Set();
-let spectatingIntId = null;
 let spectateStartState = null;
-let PALETTE_USABLE_REGION = DEFAULT_PALETTE_USABLE_REGION;
-let PALETTE = DEFAULT_PALETTE;
-let WIDTH = DEFAULT_WIDTH;
-let HEIGHT = DEFAULT_HEIGHT;
-let COOLDOWN = DEFAULT_COOLDOWN;
-const automated = navigator.webdriver;
-const httpServerUrl = (localStorage.server || DEFAULT_SERVER)
-  .replace("wss://", "https://")
-  .replace("ws://", "http://");
-const res = await fetch(
-  `${httpServerUrl}/public/game-worker.js?v=${Date.now()}`
-);
-const code = await res.text();
-const blob = new Blob([code], { type: "application/javascript" });
-const url = URL.createObjectURL(blob);
-const wsCapsule = new Worker(url, {
-  type: "module",
-});
-wsCapsule.addEventListener("message", handleIpcMessage);
-window.addEventListener("beforeunload", (e2) => {
-  console.log("Stopping wsCapsule...");
-  sendIpcMessage(wsCapsule, "stop");
-});
-const injectedCjs = document.createElement("script");
-injectedCjs.innerHTML = `
-	delete WebSocket;
-	delete Worker;
-	Object.defineProperty(window, "eval", {
-		value: function() { throw new Error() },
-		writable: false,
-		configurable: false
-	});
-`;
-document.body.appendChild(injectedCjs);
-function handleConnect() {
-  connectStatus = "connected";
-  if (automated) {
-    const activityObj = {
-      windowOuterWidth: window.outerWidth,
-      windowInnerWidth: window.innerWidth,
-      windowOuterHeight: window.outerHeight,
-      windowInnerHeight: window.innerHeight,
-      lastMouseMove: new Date(lastMouseMove).toISOString(),
-      mouseX: mx,
-      mouseY: my,
-      localStorage: { ...localStorage },
-    };
-    sendIpcMessage(wsCapsule, "informAutomatedActivity", activityObj);
-  }
-}
-addIpcMessageHandler("handleConnect", handleConnect);
-function handlePalette({ palette: palette2, paletteUsableRegion }) {
-  PALETTE = palette2;
-  PALETTE_USABLE_REGION.start = paletteUsableRegion.start;
-  PALETTE_USABLE_REGION.end = paletteUsableRegion.end;
+window.addEventListener("palette", (e2) => {
   generatePalette();
   const binds = localStorage.paletteKeys || DEFAULT_PALETTE_KEYS;
   generateIndicators(binds);
   if (boardAlreadyRendered === true) {
     renderAll();
   }
-}
-addIpcMessageHandler("handlePalette", handlePalette);
-function handleCooldownInfo({ endDate, cooldown }) {
-  setCooldown(endDate.getTime());
-  COOLDOWN = cooldown;
-}
-addIpcMessageHandler("handleCooldownInfo", handleCooldownInfo);
-async function handleCanvasInfo({ width, height }) {
-  WIDTH = width;
-  HEIGHT = height;
-  setSize(width, height);
-  const board = await preloadedBoard;
-  if (board) {
-    runLengthDecodeBoard(board, width * height);
-    hideLoadingScreen();
+});
+window.addEventListener("cooldownend", (e2) => {
+  if (!document.hasFocus()) {
+    runAudio(AUDIOS.cooldownEnd);
   }
-}
-addIpcMessageHandler("handleCanvasInfo", handleCanvasInfo);
-async function handleChanges(changes) {
-  const board = await preloadedBoard;
-  if (board) {
-    runLengthChanges(changes, board);
-    hideLoadingScreen();
+  updatePlaceButton();
+});
+window.addEventListener("cooldownstart", (e2) => {
+  updatePlaceButton();
+});
+window.addEventListener("fetchboardfail", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
   }
-}
-addIpcMessageHandler("handleChanges", handleChanges);
-function setOnline(count) {
+  const { type } = e2.detail;
+  if (type === "timeout") {
+    showLoadingScreen("timeout");
+  } else {
+    showLoadingScreen();
+  }
+});
+window.addEventListener("boardloaded", async (e2) => {
+  renderAll();
+  hideLoadingScreen();
+});
+window.addEventListener("size", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { width, height } = e2.detail;
+  sizeChanged(width, height);
+});
+window.addEventListener("online", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { count } = e2.detail;
   onlineCounter.textContent = String(count);
   sendIpcMessage(postsFrame, "onlineCounter", count);
-}
-addIpcMessageHandler("setOnline", setOnline);
-function handlePlacerInfoRegion({ position, width, height, region }) {
-  const regionView = new DataView(region);
-  let i4 = position;
-  let regionI = 0;
-  while (regionI < region.byteLength) {
-    for (let xi = i4; xi < i4 + width; xi++) {
-      const placerIntId = regionView.getUint32(regionI);
-      if (placerIntId !== 4294967295) {
-        intIdPositions.set(xi, placerIntId);
-      }
-      regionI += 4;
-    }
-    i4 += WIDTH;
+});
+window.addEventListener("canvaslocked", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
   }
-}
-addIpcMessageHandler("handlePlacerInfoRegion", handlePlacerInfoRegion);
-function handleSetIntId(newIntId) {
-  intId = newIntId;
-}
-addIpcMessageHandler("handleSetIntId", handleSetIntId);
-function handleSetCanvasLocked({ locked, reason }) {
+  const { locked, reason } = e2.detail;
   setCanvasLocked(locked);
   if (typeof reason === "string" && reason !== "") {
     alert(reason);
   }
-}
-addIpcMessageHandler("setCanvasLocked", handleSetCanvasLocked);
-function handlePixels(pixels) {
+});
+window.addEventListener("pixels", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { pixels } = e2.detail;
   for (const pixel of pixels) {
-    seti(pixel.position, pixel.colour);
-    if (pixel.placer) {
-      intIdPositions.set(pixel.position, pixel.placer);
-      if (pixel.placer === spectatingIntId) {
-        const x2 = pixel.position % WIDTH;
-        const y22 = Math.floor(pixel.position / WIDTH);
-        zoomIn();
-        moveTo(x2, y22);
-      }
-    }
+    drawPixel(pixel.position, pixel.colour);
   }
-}
-addIpcMessageHandler("handlePixels", handlePixels);
-function handleRejectedPixel({ endDate, position, colour }) {
-  setCooldown(endDate.getTime());
-  seti(position, colour);
-}
-addIpcMessageHandler("handleRejectedPixel", handleRejectedPixel);
-function handleCooldown({ endDate }) {
-  setCooldown(endDate.getTime());
-}
-addIpcMessageHandler("handleCooldown", handleCooldown);
-function setChatName(name) {
-  chatName = name;
+});
+window.addEventListener("rejectedpixel", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { position, colour } = e2.detail;
+  drawPixel(position, colour);
+});
+window.addEventListener("spectatedpixel", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { position } = e2.detail;
+  const x2 = position % WIDTH;
+  const y22 = Math.floor(position / WIDTH);
+  zoomIn();
+  moveTo(x2, y22);
+});
+window.addEventListener("chatname", (e2) => {
   namePanel.style.visibility = "hidden";
-}
-addIpcMessageHandler("setChatName", setChatName);
-function handleNameInfo(newIntIdNames) {
-  for (const [key, value] of newIntIdNames.entries()) {
-    intIdNames.set(key, value);
+});
+window.addEventListener("livechatmessage", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
   }
-}
-addIpcMessageHandler("handleNameInfo", handleNameInfo);
-function addLiveChatMessage({ message, channel }) {
+  const { message, channel } = e2.detail;
   if (!cMessages.has(channel)) {
     cMessages.set(channel, []);
   }
@@ -12116,9 +13550,12 @@ function addLiveChatMessage({ message, channel }) {
       }
     });
   }
-}
-addIpcMessageHandler("addLiveChatMessage", addLiveChatMessage);
-function addPlaceChatMessage(message) {
+});
+window.addEventListener("placechatmessage", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { message } = e2.detail;
   if (!placeChat) {
     return;
   }
@@ -12137,9 +13574,12 @@ function addPlaceChatMessage(message) {
   setTimeout(() => {
     placeMessage.remove();
   }, localStorage.placeChatTime || 7e3);
-}
-addIpcMessageHandler("addPlaceChatMessage", addPlaceChatMessage);
-function handleLiveChatDelete(messageId) {
+});
+window.addEventListener("livechatdelete", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { messageId } = e2.detail;
   for (const channel of cMessages.values()) {
     for (const messageEl of channel) {
       if (messageEl.messageId !== messageId) {
@@ -12149,9 +13589,12 @@ function handleLiveChatDelete(messageId) {
       messageEl.remove();
     }
   }
-}
-addIpcMessageHandler("handleLiveChatDelete", handleLiveChatDelete);
-function handleLiveChatReaction({ messageId, reactorId, reactionKey }) {
+});
+window.addEventListener("livechatreaction", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { messageId, reactorId, reactionKey } = e2.detail;
   for (const channel of cMessages.values()) {
     for (const messageEl of channel) {
       if (messageEl.messageId !== messageId) {
@@ -12173,8 +13616,7 @@ function handleLiveChatReaction({ messageId, reactorId, reactionKey }) {
       }
     }
   }
-}
-addIpcMessageHandler("handleLiveChatReaction", handleLiveChatReaction);
+});
 function handleTextCaptcha({ options, imageData }) {
   captchaOptions.innerHTML = "";
   let captchaSubmitted = false;
@@ -12242,6 +13684,10 @@ function handleEmojiCaptcha({ options, imageData }) {
   }
 }
 addIpcMessageHandler("handleEmojiCaptcha", handleEmojiCaptcha);
+function handleCaptchaSuccess() {
+  captchaPopup.close();
+}
+addIpcMessageHandler("handleCaptchaSuccess", handleCaptchaSuccess);
 function handleTurnstile(siteKey) {
   const siteVariant = document.documentElement.dataset.variant;
   const turnstileTheme = siteVariant === "dark" ? "dark" : "light";
@@ -12270,13 +13716,17 @@ function handleTurnstileSuccess() {
   turnstileMenu.removeAttribute("open");
 }
 addIpcMessageHandler("handleTurnstileSuccess", handleTurnstileSuccess);
-function applyPunishment(packet) {
-  if (packet.state === PUNISHMENT_STATE.mute) {
+window.addEventListener("punishment", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const info = e2.detail;
+  if (info.state === PUNISHMENT_STATE.mute) {
     messageInput.disabled = true;
     punishmentNote.innerHTML =
       "You have been <strong>muted</strong>, you cannot send messages in live chat.";
-  } else if (packet.state === PUNISHMENT_STATE.ban) {
-    canvasLocked = true;
+  } else if (info.state === PUNISHMENT_STATE.ban) {
+    setCanvasLocked(true);
     messageInput.disabled = true;
     canvasLock.style.display = "flex";
     punishmentNote.innerHTML =
@@ -12284,21 +13734,36 @@ function applyPunishment(packet) {
   }
   punishmentUserId.textContent = `Your User ID: #${intId}`;
   punishmentStartDate.textContent = `Started on: ${new Date(
-    packet.startDate
+    info.startDate
   ).toLocaleString()}`;
   punishmentEndDate.textContent = `Ending on: ${new Date(
-    packet.endDate
+    info.endDate
   ).toLocaleString()}`;
-  punishmentReason.textContent = `Reason: ${packet.reason}`;
+  punishmentReason.textContent = `Reason: ${info.reason}`;
   punishmentAppeal.textContent = `Appeal status: ${
-    packet.appeal && packet.appeal !== "null" ? packet.appeal : "Unappealable"
+    info.appeal && info.appeal !== "null" ? info.appeal : "Unappealable"
   }`;
   punishmentMenu.setAttribute("open", "true");
-}
-addIpcMessageHandler("applyPunishment", applyPunishment);
-function handleDisconnect({ code: code2, reason }) {
-  localStorage.lastDisconnect = Date.now();
-  console.log("Disconnected from server with code:", code2, `(${reason})`);
+});
+window.addEventListener("spectating", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { userIntId } = e2.detail;
+  startedSpectating(userIntId);
+});
+window.addEventListener("unspectating", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { userIntId, reason } = e2.detail;
+  stoppedSpectating(userIntId, reason);
+});
+window.addEventListener("disconnect", (e2) => {
+  if (!(e2 instanceof CustomEvent)) {
+    throw new Error("Window event was not of type CustomEvent");
+  }
+  const { code: code2, reason } = e2.detail;
   if (code2 === 1006 && !sessionStorage.loadError) {
     sessionStorage.loadError = "1";
     window.location.reload();
@@ -12306,47 +13771,9 @@ function handleDisconnect({ code: code2, reason }) {
       "Unexpected disconnect code 10006: Attempting automated reload"
     );
   }
-  connectStatus = "disconnected";
+  console.log("Disconnected from server with code:", code2, `(${reason})`);
   showLoadingScreen("disconnected", reason);
-  wsCapsule.terminate();
-  setCooldown(null);
-}
-addIpcMessageHandler("handleDisconnect", handleDisconnect);
-function handleCaptchaSuccess() {
-  captchaPopup.close();
-}
-addIpcMessageHandler("handleCaptchaSuccess", handleCaptchaSuccess);
-async function handleChallenge({ source, input }) {
-  const result = await Object.getPrototypeOf(async function () {}).constructor(
-    source
-  )(input);
-  sendIpcMessage(wsCapsule, "sendChallengeResult", result);
-}
-addIpcMessageHandler("handleChallenge", handleChallenge);
-function handleSpectating(userIntId) {
-  spectatingIntId = userIntId;
-  startedSpectating(userIntId);
-}
-addIpcMessageHandler("handleSpectating", handleSpectating);
-function handleUnspectating({ unspectatingIntId, reason }) {
-  if (spectatingIntId === unspectatingIntId) {
-    spectatingIntId = null;
-  }
-  stoppedSpectating(unspectatingIntId, reason);
-}
-addIpcMessageHandler("handleUnspectating", handleUnspectating);
-function handleSpectated(spectatorIntId) {
-  spectators.add(spectatorIntId);
-}
-addIpcMessageHandler("handleSpectated", handleSpectated);
-function handleUnspectated(spectatorIntId) {
-  spectators.delete(spectatorIntId);
-}
-addIpcMessageHandler("handleUnspectated", handleUnspectated);
-let moved = 3;
-let touch1 = null;
-let touch2 = null;
-let touchMoveDistance = 15;
+});
 function resizePostsFrame() {
   if (!postsFrame) {
     return;
@@ -12385,101 +13812,6 @@ more.addEventListener(
   },
   { passive: true }
 );
-viewport.addEventListener("touchstart", function (e2) {
-  if (!(e2 instanceof Event) || !e2.isTrusted) {
-    return;
-  }
-  e2.preventDefault();
-  for (let i4 = 0; i4 < e2.changedTouches.length; i4++) {
-    const touch = e2.changedTouches[i4];
-    if (!touch1) {
-      touch1 = touch;
-      touchMoveDistance = 15;
-    } else if (!touch2) {
-      touch2 = touch;
-    } else {
-      [touch1, touch2] = [touch2, touch];
-    }
-  }
-});
-viewport.addEventListener("touchend", function (e2) {
-  if (
-    !(e2 instanceof Event) ||
-    !e2.isTrusted ||
-    !(e2.target instanceof HTMLElement)
-  ) {
-    return;
-  }
-  for (let i4 = 0; i4 < e2.changedTouches.length; i4++) {
-    const t2 = e2.changedTouches[i4];
-    assign2: {
-      if (touch2 && touch2.identifier === t2.identifier) {
-        touch2 = null;
-      } else if (touch1 && touch1.identifier === t2.identifier) {
-        [touch1, touch2] = [touch2, null];
-        if (
-          touchMoveDistance > 0 &&
-          e2.target instanceof Node &&
-          canvParent2.contains(e2.target)
-        ) {
-          if (!isCanvasDragRegion(e2.target)) {
-            break assign2;
-          }
-          clicked(t2.clientX, t2.clientY);
-        }
-      }
-    }
-    let target =
-      /** @type {HTMLElement|null} */
-      e2.target;
-    if (target && "value" in target) {
-      target.focus();
-    }
-    while (target && !target.dispatchEvent) {
-      target = target.parentElement;
-    }
-    if (touchMoveDistance > 0 && target) {
-      target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    }
-  }
-  e2.preventDefault();
-});
-viewport.addEventListener("mousedown", function (e2) {
-  if (!(e2 instanceof Event) || !e2.isTrusted) {
-    return;
-  }
-  moved = 3;
-  mouseDown = e2.button + 1;
-  if (placeContext.style.display == "block") {
-    placeContext.style.display = "none";
-  }
-});
-viewport.addEventListener("mouseup", function (e2) {
-  if (
-    !(e2 instanceof Event) ||
-    !e2.isTrusted ||
-    !(e2.target instanceof HTMLElement)
-  ) {
-    return;
-  }
-  if (!isCanvasDragRegion(e2.target)) {
-    moved = 3;
-    mouseDown = 0;
-    return;
-  }
-  if (moved > 0 && canvParent2.contains(e2.target)) {
-    clicked(e2.clientX, e2.clientY);
-  }
-  moved = 3;
-  mouseDown = 0;
-});
-function isCanvasDragRegion(element) {
-  return (
-    element === viewport ||
-    canvParent2.contains(element) ||
-    placeChatMessages.contains(element)
-  );
-}
 const placeContext =
   /**@type {HTMLElement}*/
   $$1("#placeContext");
@@ -12497,18 +13829,6 @@ placeContextInfoButton.addEventListener("click", function (e2) {
   const px = Number(placeContext.dataset.x);
   const py = Number(placeContext.dataset.y);
   showPlacerInfo(px, py);
-});
-viewport.addEventListener("contextmenu", function (e2) {
-  if (
-    !(e2 instanceof Event) ||
-    !e2.isTrusted ||
-    !(e2.target instanceof HTMLElement)
-  ) {
-    return;
-  }
-  placeContext.style.display = "block";
-  const { x: x2, y: y22 } = screenToCanvas(e2.clientX, e2.clientY);
-  setPlaceContextPosition(x2, y22);
 });
 if (!localStorage.vip?.startsWith("!")) {
   const placeContextModItem =
@@ -12550,44 +13870,6 @@ async function showPlacerInfo(x2, y22) {
 Name: ${name || "anon"}
 User ID: #${id}`);
 }
-const canvasCtx = canvas.getContext("2d");
-function transform() {
-  const scale = z2 * 50;
-  const translateX = x * z2 * -50;
-  const translateY = y2 * z2 * -50;
-  const width = z2 * canvas.width * 50;
-  const height = z2 * canvas.height * 50;
-  canvParent1.style.transform = `translate(${translateX + innerWidth / 2}px, ${
-    translateY + viewport.offsetHeight / 2
-  }px) scale(${scale})`;
-  canvParent2.style.transform = canvParent1.style.transform;
-  canvSelect.style.transform = `translate(${Math.floor(x)}px, ${Math.floor(
-    y2
-  )}px) scale(0.01)`;
-  placeChatMessages.style.transform = `translate(${
-    translateX + innerWidth / 2
-  }px, ${translateY + viewport.offsetHeight / 2}px) scale(${z2 * 5})`;
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
-  canvas.style.transform = `translate(${translateX}px, ${translateY}px)`;
-  canvas.style.imageRendering = z2 < 1 / 50 / devicePixelRatio ? "initial" : "";
-}
-function screenToCanvas(clientX, clientY) {
-  const scale = z2 * 50;
-  const translateX = x * z2 * -50;
-  const translateY = y2 * z2 * -50;
-  const canvasX = (clientX - innerWidth / 2 - translateX) / scale;
-  const canvasY = (clientY - viewport.offsetHeight / 2 - translateY) / scale;
-  return { x: canvasX, y: canvasY };
-}
-let x = 0;
-let y2 = 0;
-let z2 = 0;
-let minZoom = 0;
-let BOARD = null;
-let CHANGES = null;
-let RAW_BOARD = null;
-let SOCKET_PIXELS = null;
 let pwaPrompter = null;
 modalInstall.disabled = true;
 window.addEventListener("beforeinstallprompt", function (e2) {
@@ -12632,11 +13914,11 @@ document.body.addEventListener("keydown", function (e2) {
       modal.showModal();
     } else if (e2.key === "=" || e2.key == "+") {
       e2.preventDefault();
-      z2 += 0.02;
+      setZ(z2 + 0.02);
       pos();
     } else if (e2.key === "-") {
       e2.preventDefault();
-      z2 -= 0.02;
+      setZ(z2 - 0.02);
       pos();
     }
     let moveEaseI = 10;
@@ -12644,16 +13926,16 @@ document.body.addEventListener("keydown", function (e2) {
       const step = moveEaseI / 55;
       switch (e2.code) {
         case "ArrowLeft":
-          x -= step;
+          setX(x - step);
           break;
         case "ArrowUp":
-          y2 -= step;
+          setY(y2 - step);
           break;
         case "ArrowRight":
-          x += step;
+          setX(x + step);
           break;
         case "ArrowDown":
-          y2 += step;
+          setY(y2 + step);
           break;
       }
       pos();
@@ -12703,7 +13985,6 @@ document.body.addEventListener("keydown", function (e2) {
   selectColour(keyIndex);
 });
 function setCanvasLocked(locked, lockMessage = null) {
-  canvasLocked = locked;
   canvasLock.style.display = locked ? "flex" : "none";
   if (locked) {
     placeOkButton.classList.remove("enabled");
@@ -12720,35 +14001,34 @@ function setCanvasLocked(locked, lockMessage = null) {
   }
   placeOkButton.disabled = locked;
 }
-function setSize(w, h2 = w) {
-  canvas.width = WIDTH = w;
-  canvas.height = HEIGHT = h2;
-  canvParent1.style.width = w + "px";
-  canvParent1.style.height = h2 + "px";
-  canvParent2.style.width = w + "px";
-  canvParent2.style.height = h2 + "px";
-  placeChatMessages.style.width = w + "px";
-  placeChatMessages.style.width = h2 + "px";
-  BOARD = new Uint8Array(w * h2).fill(255);
-  BOARD.length;
-  x = +localStorage.x || w / 2;
-  y2 = +localStorage.y || h2 / 2;
-  z2 = +localStorage.z || 0.2;
-  for (let [key, value] of new URLSearchParams(window.location.search)) {
+function sizeChanged(width, height) {
+  canvas.width = width;
+  canvas.height = height;
+  canvParent1.style.width = width + "px";
+  canvParent1.style.height = height + "px";
+  canvParent2.style.width = width + "px";
+  canvParent2.style.height = height + "px";
+  placeChatMessages.style.width = width + "px";
+  placeChatMessages.style.width = height + "px";
+  setX(+localStorage.x || width / 2);
+  setY(+localStorage.y || height / 2);
+  setZ(+localStorage.z || 0.2);
+  for (const [key, value] of new URLSearchParams(window.location.search)) {
     switch (key) {
       // Only for numeric value params
       case "x": {
-        x = parseInt(value, 10) || 0;
+        setX(parseInt(value, 10) || 0);
         pos();
         break;
       }
       case "y": {
-        y2 = parseInt(value, 10) || 0;
+        setY(parseInt(value, 10) || 0);
         pos();
         break;
       }
       case "z": {
-        z2 = parseInt(value, 10) || 0;
+        setZ(parseInt(value, 10) || 0);
+        pos();
         break;
       }
       case "overlay": {
@@ -12759,9 +14039,9 @@ function setSize(w, h2 = w) {
         overlayInfo.y = overlayInfo.y || 0;
         templateImage.style.transform = `translate(${overlayInfo.x}px, ${overlayInfo.y}px)`;
         templateImage.style.opacity = String(overlayInfo.opacity || 0.8);
-        x = overlayInfo.x;
-        y2 = overlayInfo.y;
-        z2 = Math.min(Math.max(z2, minZoom), 1);
+        setX(overlayInfo.x);
+        setY(overlayInfo.y);
+        setZ(Math.min(Math.max(z2, minZoom), 1));
         pos();
         openOverlayMenuOld();
         break;
@@ -12771,158 +14051,11 @@ function setSize(w, h2 = w) {
   onMainContentResize();
 }
 function onMainContentResize() {
-  minZoom =
+  setMinZoom(
     Math.min(innerWidth / canvas.width, viewport.offsetHeight / canvas.height) /
-    100;
-  pos();
-}
-let lastMouseMove = 0;
-let mouseDown = 0;
-let mx = 0;
-let my = 0;
-viewport.addEventListener("mousemove", function (e2) {
-  if (
-    !(e2 instanceof Event) ||
-    !e2.isTrusted ||
-    !(e2.target instanceof HTMLElement)
-  ) {
-    return;
-  }
-  if (!isCanvasDragRegion(e2.target)) {
-    return;
-  }
-  lastMouseMove = Date.now();
-  moved--;
-  let dx = -(mx - (mx = e2.clientX - innerWidth / 2));
-  let dy = -(my - (my = e2.clientY - viewport.offsetHeight / 2));
-  if (dx != dx || dy != dy) {
-    return;
-  }
-  if (mouseDown) {
-    x -= dx / (z2 * 50);
-    y2 -= dy / (z2 * 50);
-    pos();
-    if (zoomAnim) {
-      clearInterval(zoomAnim);
-    }
-  }
-});
-viewport.addEventListener("wheel", function (e2) {
-  if (
-    !(e2 instanceof Event) ||
-    !e2.isTrusted ||
-    !(e2.target instanceof HTMLElement)
-  ) {
-    return;
-  }
-  if (!isCanvasDragRegion(e2.target)) {
-    return;
-  }
-  const d2 = Math.max(
-    minZoom / z2,
-    Math.min(3 ** Math.max(-0.5, Math.min(0.5, e2.deltaY * -0.01)), 1 / z2)
+      100
   );
-  z2 *= d2;
-  x += (mx * (d2 - 1)) / z2 / 50;
-  y2 += (my * (d2 - 1)) / z2 / 50;
   pos();
-});
-let idPositionDebounce = false;
-let idPositionTimeout = null;
-let lastIntX = Math.floor(x);
-let lastIntY = Math.floor(y2);
-function setCanvasAttachmentPosition(element, px, py, z22) {
-  const scale = z22 * 50;
-  const translateX = x * z22 * -50;
-  const translateY = y2 * z22 * -50;
-  const screenX = px * scale + translateX + viewport.offsetWidth / 2;
-  const screenY = py * scale + translateY + viewport.offsetHeight / 2;
-  element.style.left = `${screenX}px`;
-  element.style.top = `${screenY}px`;
-}
-function setPlaceContextPosition(canvX, canvY) {
-  if (placeContext.style.display === "block") {
-    placeContext.dataset.x = String(canvX);
-    placeContext.dataset.y = String(canvY);
-    setCanvasAttachmentPosition(placeContext, canvX, canvY, z2);
-  }
-}
-function setPlaceChatPosition(element, posX, posY) {
-  element.style.left = `${posX * 10}px`;
-  element.style.top = `${posY * 10}px`;
-}
-function pos(newX = x, newY = y2, newZ = z2) {
-  newX = x = Math.max(Math.min(newX, WIDTH - 1), 0);
-  newY = y2 = Math.max(Math.min(newY, HEIGHT - 1), 0);
-  newZ = z2 = Math.min(Math.max(newZ, minZoom), 1);
-  const right = newX - canvas.width + 0.01;
-  const left = newX;
-  const up = newY - canvas.height + 0.01;
-  const down = newY;
-  if (right >= left) newX = 0;
-  else if (right > 0) newX -= right;
-  else if (left < 0) newX -= left;
-  if (up >= down) newY = 0;
-  else if (up > 0) newY -= up;
-  else if (down < 0) newY -= down;
-  localStorage.x = Math.floor(newX) + 0.5;
-  localStorage.y = Math.floor(newY) + 0.5;
-  localStorage.z = newZ;
-  transform();
-  boardRenderer?.setPosition(x, y2, z2);
-  const canvX = Number(placeContext.dataset.x);
-  const canvY = Number(placeContext.dataset.y);
-  setPlaceContextPosition(canvX, canvY);
-  if (positionIndicator.setPosition) {
-    positionIndicator.setPosition(x, y2, z2);
-  }
-  const intX = Math.floor(newX),
-    intY = Math.floor(newY);
-  if (intX != lastIntX || intY != lastIntY) {
-    if (idPositionTimeout) {
-      clearTimeout(idPositionTimeout);
-    }
-    idPosition.style.display = "none";
-    idPositionDebounce = false;
-  }
-  lastIntX = intX;
-  lastIntY = intY;
-  if (!idPositionDebounce) {
-    idPositionDebounce = true;
-    idPositionTimeout = setTimeout(() => {
-      idPositionDebounce = false;
-      let id = intIdPositions.get(intX + intY * WIDTH);
-      if (id === void 0 || id === null) {
-        const placersRadius = 15;
-        const centreX = Math.floor(Math.max(intX - placersRadius / 2, 0));
-        const centreY = Math.floor(Math.max(intY - placersRadius / 2, 0));
-        const width = Math.min(placersRadius, WIDTH - intX);
-        const height = Math.min(placersRadius, HEIGHT - intY);
-        const position = centreX + centreY * WIDTH;
-        if (connectStatus === "connected") {
-          sendIpcMessage(wsCapsule, "requestPixelPlacers", {
-            position,
-            width,
-            height,
-          });
-        }
-        return;
-      }
-      idPosition.style.display = "flex";
-      setPlaceChatPosition(idPosition, intX, intY);
-      idPositionPlacer.style.color = CHAT_COLOURS[hash("" + id) & 7];
-      idPositionPlacer.textContent = intIdNames.get(id) || "#" + id;
-    }, 1e3);
-  }
-}
-let boardRenderer = null;
-if (enableWebglCanvas) {
-  try {
-    boardRenderer = new BoardRenderer(viewportCanvas);
-    canvas.style.opacity = "0";
-  } catch (e2) {
-    console.error(e2);
-  }
 }
 let boardAlreadyRendered = false;
 function renderAll() {
@@ -12951,17 +14084,7 @@ function renderAll() {
 }
 const u32Colour = new Uint32Array(1);
 const u8ArrColour = new Uint8Array(u32Colour.buffer);
-function set(x2, y22, colour) {
-  const index2 = (x2 % canvas.width) + (y22 % canvas.height) * canvas.width;
-  seti(index2, colour);
-}
-function seti(index2, colour) {
-  if (!BOARD || !SOCKET_PIXELS) {
-    console.error("Could not set pixel: Board or socket pixels was null");
-    return;
-  }
-  BOARD[index2] = colour;
-  SOCKET_PIXELS[index2] = colour;
+function drawPixel(index2, colour) {
   u32Colour[0] = PALETTE[colour];
   if (canvasCtx) {
     const x2 = index2 % WIDTH;
@@ -12982,138 +14105,6 @@ function seti(index2, colour) {
   if (boardRenderer) {
     boardRenderer.redrawSocketPixel(index2, colour);
   }
-}
-viewport.addEventListener("touchmove", function (e2) {
-  if (
-    !(e2 instanceof Event) ||
-    !e2.isTrusted ||
-    !(e2.target instanceof HTMLElement)
-  ) {
-    return;
-  }
-  for (let i4 = 0; i4 < e2.changedTouches.length; i4++) {
-    const touch = e2.changedTouches[i4];
-    if (!touch) {
-      continue;
-    }
-    if (zoomAnim) {
-      clearInterval(zoomAnim);
-    }
-    const touchTarget =
-      /**@type {HTMLElement}*/
-      e2.target;
-    if (!touch2 && touch1 && touch1.identifier == touch.identifier) {
-      touchMoveDistance -=
-        Math.abs(touch.clientY - touch1.clientY) +
-        Math.abs(touch.clientX - touch1.clientX);
-      if (e2.target != viewport && !canvParent2.contains(touchTarget)) {
-        break;
-      }
-      x -= (touch.clientX - touch1.clientX) / (z2 * 50);
-      y2 -= (touch.clientY - touch1.clientY) / (z2 * 50);
-      pos();
-    } else if (touch1 && touch2) {
-      if (e2.target != viewport && !canvParent2.contains(touchTarget)) {
-        break;
-      }
-      let currentTouch =
-        touch1.identifier == touch.identifier
-          ? touch1
-          : touch2.identifier == touch.identifier
-          ? touch2
-          : null;
-      if (!currentTouch) {
-        break;
-      }
-      const otherTouch = currentTouch == touch1 ? touch2 : touch1;
-      x -= (touch.clientX - currentTouch.clientX) / (z2 * 50);
-      y2 -= (touch.clientY - currentTouch.clientY) / (z2 * 50);
-      touchMoveDistance -=
-        Math.abs(touch.clientY - currentTouch.clientY) +
-        Math.abs(touch.clientX - currentTouch.clientX);
-      let dx = currentTouch.clientX - otherTouch.clientX;
-      let dy = currentTouch.clientY - otherTouch.clientY;
-      let initialDistance = dx * dx + dy * dy;
-      dx = touch.clientX - otherTouch.clientX;
-      dy = touch.clientY - otherTouch.clientY;
-      const scale = Math.sqrt((dx * dx + dy * dy) / initialDistance);
-      z2 *= scale;
-      pos();
-    }
-    if (touch1 && touch1.identifier == touch.identifier) touch1 = touch;
-    else if (touch2 && touch2.identifier == touch.identifier) touch2 = touch;
-  }
-});
-let zoomAnim = null;
-function clicked(clientX, clientY) {
-  if (zoomAnim) {
-    clearInterval(zoomAnim);
-  }
-  clientX = Math.floor(x + (clientX - innerWidth / 2) / z2 / 50) + 0.5;
-  clientY =
-    Math.floor(y2 + (clientY - viewport.offsetHeight / 2) / z2 / 50) + 0.5;
-  if (clientX == Math.floor(x) + 0.5 && clientY == Math.floor(y2) + 0.5) {
-    clientX -= 0.5;
-    clientY -= 0.5;
-    if ((cooldownEndDate ?? 0) < Date.now()) {
-      zoomIn();
-      showPalette();
-    } else {
-      runAudio(AUDIOS.invalid);
-    }
-    return;
-  }
-  runAudio(
-    (cooldownEndDate ?? 0) > Date.now() ? AUDIOS.invalid : AUDIOS.highlight
-  );
-  zoomAnim = setInterval(function () {
-    x += (clientX - x) / 10;
-    y2 += (clientY - y2) / 10;
-    pos();
-    if (zoomAnim && Math.abs(clientX - x) + Math.abs(clientY - y2) < 0.1) {
-      clearInterval(zoomAnim);
-    }
-  }, 15);
-}
-function moveTo(newX = x, newY = y2, newZ = z2, durationMs = 300) {
-  const startX = x;
-  const startY = y2;
-  const startZ = z2;
-  const startTime = Date.now();
-  const easeFunc = setInterval(() => {
-    const elapsed = Date.now() - startTime;
-    let t2 = elapsed / durationMs;
-    if (t2 >= 1) {
-      t2 = 1;
-    }
-    const currentX = lerp(startX, newX, t2);
-    const currentY = lerp(startY, newY, t2);
-    const currentZ = lerp(startZ, newZ, t2);
-    pos(currentX, currentY, currentZ);
-    if (t2 >= 1) {
-      clearInterval(easeFunc);
-      x = newX;
-      y2 = newY;
-      z2 = newZ;
-    }
-  }, 16);
-}
-function zoomIn() {
-  if (z2 >= 0.4) {
-    return;
-  }
-  if (zoomAnim) {
-    clearInterval(zoomAnim);
-  }
-  let dz = 5e-3;
-  zoomAnim = setInterval(function () {
-    if (dz < 0.2) dz *= 1.1;
-    z2 *= 1 + dz;
-    pos();
-    if (zoomAnim && z2 >= 0.4) {
-      clearInterval(zoomAnim);
-    }
-  }, 15);
 }
 let focused = true;
 let selectedColour = -1;
@@ -13154,7 +14145,7 @@ function handlePixelPlace(e2) {
   const now = Date.now();
   const clientServerLatency = 50;
   setCooldown(now + COOLDOWN + clientServerLatency);
-  set(Math.floor(x), Math.floor(y2), selectedColour);
+  drawPixel(position, selectedColour);
   hideIndicators();
   placeOkButton.classList.remove("enabled");
   canvSelect.style.background = "";
@@ -13248,34 +14239,6 @@ async function updatePlaceButton() {
   placeButton.innerHTML = innerHTML;
   placeButton.disabled = onCooldown;
 }
-let cooldownEndDate = null;
-let onCooldown = false;
-let cooldownTimeout = null;
-function setCooldown(endDate) {
-  if (cooldownTimeout !== null) {
-    clearTimeout(cooldownTimeout);
-    cooldownTimeout = null;
-  }
-  cooldownEndDate = endDate;
-  const now = Date.now();
-  if (endDate !== null) {
-    if (endDate > now) {
-      onCooldown = true;
-      cooldownTimeout = setTimeout(() => {
-        onCooldown = false;
-        if (!document.hasFocus()) {
-          runAudio(AUDIOS.cooldownEnd);
-        }
-        updatePlaceButton();
-      }, endDate - now);
-    } else {
-      onCooldown = false;
-    }
-  } else {
-    onCooldown = true;
-  }
-  updatePlaceButton();
-}
 function startCooldownInterval(resolution) {
   if (cooldownInterval && currentResolution === resolution) {
     return;
@@ -13290,41 +14253,6 @@ function clearCooldownInterval() {
     cooldownInterval = null;
     currentResolution = null;
   }
-}
-function showPalette() {
-  palette.style.transform = "";
-  runAudio(AUDIOS.highlight);
-}
-function generatePalette() {
-  colours.innerHTML = "";
-  for (
-    let i4 = PALETTE_USABLE_REGION.start;
-    i4 < PALETTE_USABLE_REGION.end;
-    i4++
-  ) {
-    const colour = PALETTE[i4] || 0;
-    const colourEl = document.createElement("div");
-    colourEl.dataset.index = String(i4);
-    colourEl.style.background = `rgba(${colour & 255},${(colour >> 8) & 255},${
-      (colour >> 16) & 255
-    }, 1)`;
-    if (colour == 4294967295) {
-      colourEl.style.outline = "1px #ddd solid";
-      colourEl.style.outlineOffset = "-1px";
-    }
-    const indicatorSpan = document.createElement("span");
-    indicatorSpan.contentEditable = "true";
-    indicatorSpan.onkeydown = function (event) {
-      rebindIndicator(event, i4);
-    };
-    colourEl.appendChild(indicatorSpan);
-    colours.appendChild(colourEl);
-  }
-}
-if (document.readyState !== "loading") {
-  generatePalette();
-} else {
-  window.addEventListener("DOMContentLoaded", generatePalette);
 }
 function runSelectColourAudio(colourIndex) {
   if (selectColourSample) {
@@ -13386,48 +14314,6 @@ function handleColourClicked(e2) {
   hideIndicators();
 }
 colours.addEventListener("click", handleColourClicked);
-function runLengthChanges(data, buffer) {
-  let i4 = 9;
-  let boardI = 0;
-  const w = data.getUint32(1);
-  const h2 = data.getUint32(5);
-  if (w != WIDTH || h2 != HEIGHT) {
-    setSize(w, h2);
-  }
-  RAW_BOARD = new Uint8Array(buffer);
-  BOARD = new Uint8Array(RAW_BOARD);
-  CHANGES = new Uint8Array(w * h2).fill(255);
-  SOCKET_PIXELS = new Uint8Array(w * h2).fill(255);
-  while (i4 < data.byteLength) {
-    let cell = data.getUint8(i4++);
-    let c2 = cell >> 6;
-    if (c2 == 1) c2 = data.getUint8(i4++);
-    else if (c2 == 2) (c2 = data.getUint16(i4++)), i4++;
-    else if (c2 == 3) (c2 = data.getUint32(i4++)), (i4 += 3);
-    boardI += c2;
-    BOARD[boardI] = cell & 63;
-    CHANGES[boardI] = cell & 63;
-    boardI++;
-  }
-  renderAll();
-}
-function runLengthDecodeBoard(data, length) {
-  const dataArr = new Uint8Array(data);
-  BOARD = new Uint8Array(length);
-  let boardI = 0;
-  let colour = 0;
-  for (let i4 = 0; i4 < data.byteLength; i4++) {
-    if (i4 % 2 == 0) {
-      colour = dataArr[i4];
-      continue;
-    }
-    for (let j2 = 0; j2 < dataArr[i4] + 1; j2++) {
-      BOARD[boardI] = colour;
-      boardI++;
-    }
-  }
-  renderAll();
-}
 const webGLSupported = (() => {
   let supported = true;
   const glTestCanvas = document.createElement("canvas");
@@ -13450,67 +14336,9 @@ const cMessages = /* @__PURE__ */ new Map([
 let chatPreviousLoadDebounce = false;
 let chatPreviousAutoLoad = false;
 let currentChannel = lang;
-let fetchCooldown = 50;
-let fetchFailTimeout = null;
 extraChannel(extraLanguage);
 initChannelDrop();
 switchLanguageChannel(currentChannel);
-async function fetchBoard() {
-  const response = await fetch(
-    (localStorage.board || DEFAULT_BOARD) + "?v=" + Date.now()
-  );
-  if (!response.ok) {
-    showLoadingScreen();
-    fetchFailTimeout = setTimeout(fetchBoard, (fetchCooldown *= 2));
-    if (fetchCooldown > 8e3) {
-      showLoadingScreen("timeout");
-      clearTimeout(fetchFailTimeout);
-    }
-    return null;
-  }
-  if (fetchFailTimeout) {
-    clearTimeout(fetchFailTimeout);
-  }
-  return await response.arrayBuffer();
-}
-let preloadedBoard = fetchBoard();
-function hideIndicators() {
-  for (let c2 = 0; c2 < colours.children.length; c2++) {
-    const indicator =
-      /**@type {HTMLElement}*/
-      colours.children[c2]?.firstElementChild;
-    if (indicator?.style.visibility !== "hidden") {
-      indicator.style.visibility = "hidden";
-    }
-  }
-}
-function rebindIndicator(e2, i4) {
-  const indicator =
-    /**@type {HTMLElement}*/
-    e2.target;
-  if (!e2.key || e2.key.length != 1 || !indicator) {
-    return;
-  }
-  indicator.innerText = e2.key;
-  indicator.blur();
-  let binds = (localStorage.paletteKeys || DEFAULT_PALETTE_KEYS).split("");
-  const preExisting = binds.indexOf(e2.key);
-  if (preExisting != -1) {
-    binds[preExisting] = "​";
-  }
-  binds[i4] = e2.key.charAt(0);
-  localStorage.paletteKeys = binds.join("");
-  generateIndicators(binds.join(""));
-}
-function generateIndicators(keybinds) {
-  for (let c2 = 0; c2 < colours.children.length; c2++) {
-    const indicator =
-      /**@type {HTMLElement}*/
-      colours.children[c2].firstChild;
-    indicator.textContent = keybinds.charAt(c2);
-  }
-}
-generateIndicators(localStorage.paletteKeys || DEFAULT_PALETTE_KEYS);
 function initChannelDrop() {
   let containsMy = false;
   channelDropMenu.innerHTML = "";
@@ -13632,6 +14460,9 @@ function createLiveChatMessageElement(
 }
 function applyLiveChatMessageInteractivity(message, channel = "") {
   message.addEventListener("coordinate-click", (e2) => {
+    if (!(e2 instanceof CustomEvent)) {
+      throw new Error("Message event was not of type CustomEvent");
+    }
     const newX = e2.detail.x ?? x;
     const newY = e2.detail.y ?? y2;
     const params2 = new URLSearchParams(window.location.search);
@@ -13642,25 +14473,40 @@ function applyLiveChatMessageInteractivity(message, channel = "") {
     pos(newX, newY);
   });
   message.addEventListener("name-click", (e2) => {
+    if (!(e2 instanceof CustomEvent)) {
+      throw new Error("Message event was not of type CustomEvent");
+    }
     const { messageId, senderId } = e2.detail;
     if (messageId > 0) {
       chatMentionUser(senderId);
     }
   });
   message.addEventListener("context-menu", (e2) => {
-    if (e2.messageId > 0) {
-      onChatContext(e2, e2.senderId, e2.messageId);
+    const mouseEvent =
+      /**@type {import("./game-elements.js").LiveChatMouseEvent}*/
+      e2;
+    if (mouseEvent.messageId > 0) {
+      onChatContext(mouseEvent, mouseEvent.senderId, mouseEvent.messageId);
     }
   });
   message.addEventListener("report-click", (e2) => {
+    if (!(e2 instanceof CustomEvent)) {
+      throw new Error("Message event was not of type CustomEvent");
+    }
     const { messageId, senderId } = e2.detail;
     chatReport(messageId, senderId);
   });
   message.addEventListener("reply-click", (e2) => {
+    if (!(e2 instanceof CustomEvent)) {
+      throw new Error("Message event was not of type CustomEvent");
+    }
     const { messageId, senderId } = e2.detail;
     chatReply(messageId, senderId);
   });
   message.addEventListener("react-click", (e2) => {
+    if (!(e2 instanceof CustomEvent)) {
+      throw new Error("Message event was not of type CustomEvent");
+    }
     const { messageId, messageElement } = e2.detail;
     const chatReactionsPanel =
       /**@type {HTMLElement}*/
@@ -13681,6 +14527,9 @@ function applyLiveChatMessageInteractivity(message, channel = "") {
     });
   });
   message.addEventListener("moderate-click", (e2) => {
+    if (!(e2 instanceof CustomEvent)) {
+      throw new Error("Message event was not of type CustomEvent");
+    }
     const { senderId, messageId, messageElement } = e2.detail;
     chatModerate("delete", senderId, messageId, messageElement);
   });
@@ -14274,15 +15123,6 @@ messageInputEmojiPanel.addEventListener("emojiselection", (e2) => {
     chatInsertText(e2.detail.value);
   }
 });
-viewCanvasLayer.addEventListener("change", function () {
-  boardRenderer?.setLayerEnabled(0, viewCanvasLayer.checked);
-});
-viewChangesLayer.addEventListener("change", function () {
-  boardRenderer?.setLayerEnabled(1, viewChangesLayer.checked);
-});
-viewSocketPixelsLayer.addEventListener("change", function () {
-  boardRenderer?.setLayerEnabled(2, viewSocketPixelsLayer.checked);
-});
 spectateCloseButton.addEventListener("click", function (e2) {
   spectateMenu.removeAttribute("open");
   sendIpcMessage(wsCapsule, "unspectateUser", void 0);
@@ -14637,7 +15477,7 @@ async function initialise() {
   initialised = true;
   console.log("Initialising...");
   translateAll();
-  setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+  sizeChanged(DEFAULT_WIDTH, DEFAULT_HEIGHT);
   renderAll();
   addIpcMessageHandler("fetchLinkKey", () =>
     makeIpcRequest(wsCapsule, "fetchLinkKey")
