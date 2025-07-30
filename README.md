@@ -1,9 +1,11 @@
 # Simple Rplace Bot
+
 ## A bot for rplace.live
 
 This is a bot for rplace.live that simply places a random colored pixel in a random place every second. Not much here.
 
 # Set-up:
+
 1. Make sure you have npm installed (<https://nodejs.org/en>)
 2. Clone this repo
 3. In your cloned repo, run `npm install` to install the required dependencies
