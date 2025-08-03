@@ -34,7 +34,7 @@ page.on("request", async (request) => {
   const url = request.url();
 
   // Block all request containing disable-devtool
-  if (/disable-devtool/.test(url)) {
+  if (url.includes("devtool")) {
     return request.abort();
   }
 
@@ -42,7 +42,15 @@ page.on("request", async (request) => {
   // The panel has all the code for pixel placing
   if ("https://rplace.live/" === url || "https://rplace.live" === url) {
     const response = await fetch("https://rplace.live");
-    const siteContent = (await response.text()) + panelFile;
+    let siteContent = await response.text();
+
+    // Allow inline scripts
+    siteContent = siteContent.replace(
+      /script-src[^;]*;/g,
+      "script-src 'self' 'unsafe-inline' blob: https://server.rplace.live https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdn.tailwindcss.com http://localhost:2108 ws://localhost:2108;"
+    );
+
+    siteContent = siteContent.replace("</body>", `${panelFile}</body>`);
 
     return request.respond({
       status: 200,

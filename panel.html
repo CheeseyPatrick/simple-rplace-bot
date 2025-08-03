@@ -1,175 +1,194 @@
 <!-- I vibe coded this using claude because I cannot do web design but I think it ended up looking pretty cool anyways -->
 
-<script src="https://cdn.tailwindcss.com"></script>
 <div
-  id="hackingPanel"
+  id="panelContainer"
   style="z-index: 2147483647 !important; position: fixed !important"
   class="top-4 right-4 w-80 bg-black border border-green-500 shadow-2xl terminal-font text-green-400 flicker"
 >
-  <!-- Header -->
-  <div
-    class="bg-green-900 bg-opacity-30 border-b border-green-500 p-2 scan-line"
-  >
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-        <div
-          class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"
-          style="animation-delay: 0.2s"
-        ></div>
-        <div
-          class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
-          style="animation-delay: 0.4s"
-        ></div>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <div id="hackingPanel">
+    <!-- Header -->
+    <div
+      class="bg-green-900 bg-opacity-30 border-b border-green-500 p-2 scan-line"
+    >
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+          <div
+            class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"
+            style="animation-delay: 0.2s"
+          ></div>
+          <div
+            class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
+            style="animation-delay: 0.4s"
+          ></div>
+        </div>
+        <h2 class="text-sm font-bold text-green-300">
+          CHEESEY'S SIMPLE RPLACE BOT
+        </h2>
+        <button
+          onclick="togglePanel()"
+          class="text-green-300 hover:text-green-100 text-xs"
+        >
+          ×
+        </button>
       </div>
-      <h2 class="text-sm font-bold text-green-300">
-        CHEESEY'S SIMPLE RPLACE BOT
-      </h2>
+    </div>
+
+    <!-- Main Panel Content -->
+    <div class="p-4">
+      <div class="mb-4">
+        <div class="text-xs text-green-300 mb-2">
+          <span class="text-red-400">[</span>SYSTEM<span class="text-red-400"
+            >]</span
+          >
+          Status: <span class="text-yellow-400" id="botStatus">READY</span>
+        </div>
+        <div class="text-xs text-green-300 mb-2">
+          <span class="text-red-400">[</span>TARGET<span class="text-red-400"
+            >]</span
+          >
+          rplace.live canvas
+        </div>
+        <div class="text-xs text-green-300 mb-2">
+          <span class="text-red-400">[</span>MODE<span class="text-red-400"
+            >]</span
+          >
+          Automated placement of random pixels everywhere on the canvas
+        </div>
+        <div class="text-xs text-yellow-300 mb-4" id="botInfo">
+          <span class="text-orange-400">[</span>INFO<span
+            class="text-orange-400"
+            >]</span
+          >
+          Press the button when you have completed the Cloudflare captcha
+        </div>
+      </div>
+
+      <!-- Start Button -->
       <button
-        onclick="togglePanel()"
-        class="text-green-300 hover:text-green-100 text-xs"
+        id="startBtn"
+        onclick="startBot()"
+        class="w-full bg-green-600 hover:bg-green-500 text-black font-bold py-2 px-4 border border-green-400 transition-all duration-200 transform hover:scale-105 active:scale-95"
       >
-        ×
+        <span class="text-sm">► START OPERATION</span>
       </button>
     </div>
-  </div>
 
-  <!-- Main Panel Content -->
-  <div class="p-4">
-    <div class="mb-4">
-      <div class="text-xs text-green-300 mb-2">
-        <span class="text-red-400">[</span>SYSTEM<span class="text-red-400"
-          >]</span
-        >
-        Status: <span class="text-yellow-400" id="botStatus">READY</span>
+    <!-- Console (Hidden by default) -->
+    <div id="console" class="hidden border-t border-green-500 bg-black">
+      <div class="p-2 bg-green-900 bg-opacity-20">
+        <span class="text-xs text-green-300">CONSOLE</span>
       </div>
-      <div class="text-xs text-green-300 mb-2">
-        <span class="text-red-400">[</span>TARGET<span class="text-red-400"
-          >]</span
-        >
-        rplace.live canvas
+      <div id="consoleOutput" class="h-48 overflow-y-auto p-3 text-xs">
+        <div class="text-green-400">Bot initialized...</div>
       </div>
-      <div class="text-xs text-green-300 mb-2">
-        <span class="text-red-400">[</span>MODE<span class="text-red-400"
-          >]</span
-        >
-        Automated placement of random pixels everywhere on the canvas
-      </div>
-      <div class="text-xs text-yellow-300 mb-4" id="botInfo">
-        <span class="text-orange-400">[</span>INFO<span class="text-orange-400"
-          >]</span
-        >
-        Press the button when you have completed the Cloudflare captcha
-      </div>
-    </div>
-
-    <!-- Start Button -->
-    <button
-      id="startBtn"
-      onclick="startBot()"
-      class="w-full bg-green-600 hover:bg-green-500 text-black font-bold py-2 px-4 border border-green-400 transition-all duration-200 transform hover:scale-105 active:scale-95"
-    >
-      <span class="text-sm">► START OPERATION</span>
-    </button>
-  </div>
-
-  <!-- Console (Hidden by default) -->
-  <div id="console" class="hidden border-t border-green-500 bg-black">
-    <div class="p-2 bg-green-900 bg-opacity-20">
-      <span class="text-xs text-green-300">CONSOLE</span>
-    </div>
-    <div id="consoleOutput" class="h-48 overflow-y-auto p-3 text-xs">
-      <div class="text-green-400">Bot initialized...</div>
-    </div>
-    <div class="border-t border-green-600 bg-green-900 bg-opacity-10 p-2">
-      <div class="flex items-center text-xs">
-        <span class="text-green-300">root@rplace:~$</span>
-        <span id="cursor" class="ml-1 typing"></span>
+      <div class="border-t border-green-600 bg-green-900 bg-opacity-10 p-2">
+        <div class="flex items-center text-xs">
+          <span class="text-green-300">root@rplace:~$</span>
+          <span id="cursor" class="ml-1 typing"></span>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  window.startBot = () => {
-    const startBtn = document.getElementById("startBtn");
-    const console = document.getElementById("console");
-    const botStatus = document.getElementById("botStatus");
-    const botInfo = document.getElementById("botInfo");
+  <script>
+    const forceOnTop = () => {
+      const panel = document.getElementById("panelContainer");
+      if (panel) {
+        panel.style.zIndex = "2147483647";
+        panel.style.position = "fixed";
+        panel.style.isolation = "isolate";
+        panel.style.pointerEvents = "auto";
+        panel.style.transform = "translateZ(0)";
+      }
+    };
 
-    console.classList.remove("hidden");
-    startBtn.classList.add("hidden");
-    botStatus.innerText = "ACTIVE";
-    botInfo.classList.add("hidden");
+    forceOnTop();
+    setInterval(forceOnTop, 100);
+  </script>
 
-    setInterval(placeRandomPixel, 1000); // Run random placer every 1000ms (can be as low as 321ms)
-    logToBotPanel(
-      /* html */
-      `<div>Placing a random colored pixel in a random location every second...</div>`,
-      "yellow"
-    );
-  };
+  <script>
+    window.startBot = () => {
+      const startBtn = document.getElementById("startBtn");
+      const console = document.getElementById("console");
+      const botStatus = document.getElementById("botStatus");
+      const botInfo = document.getElementById("botInfo");
 
-  const logToBotPanel = (message, color = "green") => {
-    const output = document.getElementById("consoleOutput");
-    const div = document.createElement("div");
+      console.classList.remove("hidden");
+      startBtn.classList.add("hidden");
+      botStatus.innerText = "ACTIVE";
+      botInfo.classList.add("hidden");
 
-    div.innerHTML = `${message}`;
-    div.classList.add(`text-${color}-400`);
+      setInterval(placeRandomPixel, 1000); // Run random placer every 1000ms (can be as low as 321ms)
+      logToBotPanel(
+        /* html */
+        `<div>Placing a random colored pixel in a random location every second...</div>`,
+        "yellow"
+      );
+    };
 
-    output.appendChild(div);
-    output.scrollTop = output.scrollHeight;
+    const logToBotPanel = (message, color = "green") => {
+      const output = document.getElementById("consoleOutput");
+      const div = document.createElement("div");
 
-    while (output.children.length > 50) {
-      output.removeChild(output.firstChild);
-    }
-  };
+      div.innerHTML = `${message}`;
+      div.classList.add(`text-${color}-400`);
 
-  const PALETTE = [
-    "Black", // 0
-    "Dark Gray", // 1
-    "Darker Gray", // 2
-    "Gray", // 3
-    "Light Gray", // 4
-    "White", // 5
-    "Light Pink", // 6
-    "Red", // 7
-    "Crimson", // 8
-    "Dark Red", // 9
-    "Maroon", // 10
-    "Orange Red", // 11
-    "Light Green", // 12
-    "Green", // 13
-    "Dark Green", // 14
-    "Blue", // 15
-    "Light Blue", // 16
-    "Sky Blue", // 17
-    "Cyan", // 18
-    "Light Purple", // 19
-    "Purple", // 20
-    "Hot Pink", // 21
-    "Orange", // 22
-    "Yellow", // 23
-    "Brown", // 24
-  ];
+      output.appendChild(div);
+      output.scrollTop = output.scrollHeight;
 
-  const placeRandomPixel = () => {
-    // Place a random color pixel at a random location
+      while (output.children.length > 50) {
+        output.removeChild(output.firstChild);
+      }
+    };
 
-    const x = Math.floor(Math.random() * 1000); // Ramdom number 0-999
-    const y = Math.floor(Math.random() * 1000); // Ramdom number 0-999
+    const PALETTE = [
+      "Black", // 0
+      "Dark Gray", // 1
+      "Darker Gray", // 2
+      "Gray", // 3
+      "Light Gray", // 4
+      "White", // 5
+      "Light Pink", // 6
+      "Red", // 7
+      "Crimson", // 8
+      "Dark Red", // 9
+      "Maroon", // 10
+      "Orange Red", // 11
+      "Light Green", // 12
+      "Green", // 13
+      "Dark Green", // 14
+      "Blue", // 15
+      "Light Blue", // 16
+      "Sky Blue", // 17
+      "Cyan", // 18
+      "Light Purple", // 19
+      "Purple", // 20
+      "Hot Pink", // 21
+      "Orange", // 22
+      "Yellow", // 23
+      "Brown", // 24
+    ];
 
-    const position = window.coordsToPosition({ x, y });
-    const color = Math.floor(Math.random() * PALETTE.length); // Random index from PALLETTE
+    const placeRandomPixel = () => {
+      // Place a random color pixel at a random location
 
-    window.placePixel(position, color);
+      const x = Math.floor(Math.random() * 1000); // Ramdom number 0-999
+      const y = Math.floor(Math.random() * 1000); // Ramdom number 0-999
 
-    logToBotPanel(
-      /* html */
-      `
+      const position = window.coordsToPosition({ x, y });
+      const color = Math.floor(Math.random() * PALETTE.length); // Random index from PALLETTE
+
+      window.placePixel(position, color);
+
+      logToBotPanel(
+        /* html */
+        `
         <div>> Placed ${PALETTE[color]} at <span class="text-blue-500 hover:underline cursor-pointer" onclick="window.pos(${x}, ${y})">${x}, ${y}</span></div>
       `
-    );
-    console.log(`Placed ${PALETTE[color]} at ${x}, ${y}`);
-  };
-</script>
+      );
+      console.log(`Placed ${PALETTE[color]} at ${x}, ${y}`);
+    };
+  </script>
+</div>
