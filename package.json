@@ -1,19 +1,24 @@
 {
-  "name": "rplace-bot-simple",
+  "name": "simple-rplace-bot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "npx tsx index.mts"
+  "description": "This is a bot for rplace.live that simply places a random colored pixel in a random place every second. Not much here.",
+  "homepage": "https://github.com/CheeseyPatrick/simple-rplace-bot#readme",
+  "bugs": {
+    "url": "https://github.com/CheeseyPatrick/simple-rplace-bot/issues"
   },
-  "keywords": [],
-  "author": "",
-  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CheeseyPatrick/simple-rplace-bot.git"
+  },
+  "license": "ISC",
+  "author": "CheeseyPatrick, lowtaperunc",
   "type": "module",
-  "devDependencies": {
-    "typescript": "^5.8.3"
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node ./src/index.js"
   },
   "dependencies": {
-    "puppeteer": "^24.15.0"
+    "puppeteer": "^24.34.0"
   }
 }
