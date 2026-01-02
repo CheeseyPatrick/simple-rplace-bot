@@ -12,7 +12,7 @@ This is a helper tool for `rplace.live`. It **does not create a full bot** by it
 2. Clone this repository:
 
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/CheeseyPatrick/simple-rplace-bot
    ```
 
 3. Install the dependencies:

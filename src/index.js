@@ -4,8 +4,8 @@ import puppeteer from "puppeteer"
 // It includes the file the variable is found in, the name of the variable in that file, and what to call the variable when it is exposed to window.rplacebot
 // Since the scripts on rplace.live are minimized, this will need to be updated whenever blobkat makes changes to the site. You can make your own code to detect the new name of the variables, but I will try to update them in the github when blobkat makes changes.
 const toExpose = [
-  { name: "on", fileRegex: /52b76b6778fdf0ec/, exposeAs: "wsCapsule" },
-  { name: "H", fileRegex: /c0cf19ff2bc439d4/, exposeAs: "sendIpcMessage" },
+  { exposeAs: "wsCapsule", name: "on", fileRegex: /613e144c8c626202/ },
+  { exposeAs: "sendIpcMessage", name: "H", fileRegex: /a4c2e679ae329eb2/ },
 ]
 // Certain lines to change in the site's scripts
 // These might change idk probably not unless blobkat changes them intentionally
