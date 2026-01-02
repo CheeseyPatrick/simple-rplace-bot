@@ -63,16 +63,16 @@ Open your browser's console and try:
 ```javascript
 const { wsCapsule, sendIpcMessage } = window.rplacebot
 
-// Place a black pixel at (0, 0)
+// Place a white pixel at (0, 0)
 sendIpcMessage(wsCapsule, "putPixel", { position: 0, colour: 0 })
 ```
 
-You should see a black pixel appear at `(0, 0)`!
+You should see a white pixel appear at `(0, 0)`!
 
 **Notes:**
 
 - `position: 0` → corresponds to coordinates `(0, 0)` on the canvas.
-- `colour: 0` → corresponds to black.
+- `colour: 0` → corresponds to white.
   _(Yes, you have to use the British spelling: `colour`.)_
 
 Try another color:
@@ -81,7 +81,7 @@ Try another color:
 sendIpcMessage(wsCapsule, "putPixel", { position: 0, colour: 8 })
 ```
 
-- This should place a red pixel at `(0, 0)`.
+- This should place a navy blue pixel at `(0, 0)`.
 
 You can now experiment with **different positions and colors**, giving you full control over your IPC calls.
 
