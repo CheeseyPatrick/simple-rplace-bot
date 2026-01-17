@@ -50,7 +50,7 @@ The two main exposed variables are:
    - **Argument 2:** the "call" to the server, e.g., `"putPixel"`
    - **Argument 3:** an object containing the data to send
 
-> For more information on `sendIpcMessage`, you can snoop around [rplace GitHub repository](https://github.com/rplacelive/).
+> For more information on `sendIpcMessage`, you can snoop around [rplace GitHub repository](https://github.com/rplacelive/) (this might help too: [rplace protocol docs](https://github.com/rplacelive/game/blob/main/PROTOCOL.md#websocket-protocol)).
 
 All exposed variables are stored in `window.rplacebot`.
 
@@ -97,3 +97,4 @@ Happy botting! 😃
 ---
 
 > **Disclaimer:** Portions of this README were assisted by [ChatGPT](https://chat.openai.com) to improve clarity and readability.
+
